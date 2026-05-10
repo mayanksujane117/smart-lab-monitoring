@@ -27,8 +27,7 @@ function App() {
     (async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/pcs"
-        );
+          "https://smart-lab-monitoring.onrender.com/api/pcs"        );
         if (isMounted) setPcs(response.data);
       } catch (error) {
         console.log(error);
@@ -36,7 +35,7 @@ function App() {
     })();
 
     // Socket Connection
-    const socket = io("http://localhost:5000");
+    const socket = io("https://smart-lab-monitoring.onrender.com");
 
 
     // Listen Realtime Updates
