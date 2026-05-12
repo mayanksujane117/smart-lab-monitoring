@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+*.log
+Backend/node_modules
+Frontend/node_modules
+Backend/client.exe

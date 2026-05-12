@@ -1,17 +1,19 @@
-export function Header() {
-  return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-      <div>
-        <h1 className="text-4xl font-bold">Smart Lab Monitoring System</h1>
-        <p className="text-slate-400 mt-2">
-          Real-time college computer lab monitoring dashboard
-        </p>
-      </div>
+function Header() {
 
-      <button className="bg-green-500 hover:bg-green-600 transition px-5 py-3 rounded-2xl font-semibold shadow-lg">
-        Live Monitoring
-      </button>
+  return (
+
+    <div className="mb-8">
+
+      <h1 className="text-4xl font-bold">
+        SLMS Dashboard
+      </h1>
+
+      <p className="text-slate-400 mt-2">
+        Smart Lab Monitoring System
+      </p>
+
     </div>
   );
 }
+
 export default Header;

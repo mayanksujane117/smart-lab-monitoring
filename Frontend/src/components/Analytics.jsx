@@ -1,63 +1,47 @@
-function Analytics({
-  totalPCs,
-  onlinePCs,
-  offlinePCs,
-}) {
+function Analytics({ pcs }) {
+
+  const avgCPU = (
+    pcs.reduce(
+      (acc, pc) =>
+        acc + Number(pc.cpuUsage || 0),
+      0
+    ) / (pcs.length || 1)
+  ).toFixed(2);
+
+  const avgRAM = (
+    pcs.reduce(
+      (acc, pc) =>
+        acc + Number(pc.ramUsage || 0),
+      0
+    ) / (pcs.length || 1)
+  ).toFixed(2);
 
   return (
 
-    <div className="bg-slate-900 p-6 rounded-2xl">
+    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800">
 
-      <h2 className="text-2xl font-bold mb-6">
-        System Analytics
+      <h2 className="text-2xl font-semibold mb-6">
+        Analytics
       </h2>
 
       <div className="space-y-4">
 
         <div>
-
-          <div className="flex justify-between mb-2">
-
-            <span>Online PCs</span>
-
-            <span>{onlinePCs}</span>
-
-          </div>
-
-          <div className="w-full bg-slate-700 h-3 rounded-full">
-
-            <div
-              className="bg-green-500 h-3 rounded-full"
-              style={{
-                width: `${(onlinePCs / totalPCs) * 100}%`,
-              }}
-            ></div>
-
-          </div>
-
+          <p className="text-slate-400">
+            Average CPU
+          </p>
+          <h3 className="text-3xl font-bold">
+            {avgCPU}%
+          </h3>
         </div>
 
         <div>
-
-          <div className="flex justify-between mb-2">
-
-            <span>Offline PCs</span>
-
-            <span>{offlinePCs}</span>
-
-          </div>
-
-          <div className="w-full bg-slate-700 h-3 rounded-full">
-
-            <div
-              className="bg-red-500 h-3 rounded-full"
-              style={{
-                width: `${(offlinePCs / totalPCs) * 100}%`,
-              }}
-            ></div>
-
-          </div>
-
+          <p className="text-slate-400">
+            Average RAM
+          </p>
+          <h3 className="text-3xl font-bold">
+            {avgRAM}%
+          </h3>
         </div>
 
       </div>
