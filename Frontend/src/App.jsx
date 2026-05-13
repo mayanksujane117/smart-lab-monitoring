@@ -12,6 +12,8 @@ import PcTable from "./components/PcTable";
 import Analytics from "./components/Analytics";
 import PcDetails from "./components/PcDetails";
 
+
+
 function App() {
 
   const [pcs, setPcs] =
@@ -35,7 +37,7 @@ function App() {
         const response =
         await axios.get(
 
-          "http://localhost:5000/api/pcs"
+          "https://smart-lab-monitoring.onrender.com/api/pcs"
 
         );
 
@@ -64,7 +66,7 @@ function App() {
     const socket =
     io(
 
-      "http://localhost:5000"
+      "https://smart-lab-monitoring.onrender.com"
 
     );
 
@@ -163,40 +165,49 @@ function App() {
   // SHUTDOWN ALL PCs
   // ==========================
 
-  const shutdownAllPCs =
-  async () => {
+ const shutdownAllPCs =
+async () => {
 
-    try {
+  const confirmShutdown =
+  window.confirm(
 
-      await axios.post(
+    "Are you sure you want to shutdown ALL PCs ?"
 
-        "http://localhost:5000/api/shutdown-all"
+  );
 
-      );
+  if (!confirmShutdown) return;
 
-      alert(
+  try {
 
-        "Shutdown command sent to all PCs 🚀"
+    await axios.post(
 
-      );
+      "https://smart-lab-monitoring.onrender.com/api/shutdown-all"
 
-    }
+    );
 
-    catch (error) {
+    alert(
 
-      console.log(
-        error
-      );
+      "Shutdown command sent to all PCs 🚀"
 
-      alert(
+    );
 
-        "Failed to shutdown all PCs ❌"
+  }
 
-      );
+  catch (error) {
 
-    }
+    console.log(
+      error
+    );
 
-  };
+    alert(
+
+      "Failed to shutdown all PCs ❌"
+
+    );
+
+  }
+
+};
 
   return (
 

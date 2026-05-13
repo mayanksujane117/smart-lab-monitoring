@@ -1,29 +1,14 @@
 // PcDetails.jsx
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 import axios from "axios";
-
-import {
-
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-
-} from "recharts";
 
 function PcDetails({
 
   selectedPC,
 
 }) {
-
-  const [history, setHistory] =
-  useState([]);
 
   // ==========================
   // FETCH HISTORY
@@ -38,15 +23,10 @@ function PcDetails({
 
       try {
 
-        const response =
         await axios.get(
 
           `https://smart-lab-monitoring.onrender.com/api/history/${selectedPC.pcName}`
 
-        );
-
-        setHistory(
-          response.data.reverse()
         );
 
       }
@@ -79,6 +59,15 @@ function PcDetails({
   const shutdownPC =
   async () => {
 
+    const confirmShutdown =
+    window.confirm(
+
+      `Are you sure you want to shutdown ${selectedPC.pcName} ?`
+
+    );
+
+    if (!confirmShutdown) return;
+
     try {
 
       await axios.post(
@@ -106,6 +95,50 @@ function PcDetails({
 
       alert(
         "Shutdown failed ❌"
+      );
+
+    }
+
+  };
+
+  // ==========================
+  // DELETE PC
+  // ==========================
+
+  const deletePC =
+  async () => {
+
+    const confirmDelete =
+    window.confirm(
+
+      `Are you sure you want to delete ${selectedPC.pcName} ?`
+
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+
+      await axios.delete(
+
+        `https://smart-lab-monitoring.onrender.com/api/delete-pc/${selectedPC.pcName}`
+
+      );
+
+      alert(
+        "PC Deleted 🚀"
+      );
+
+      window.location.reload();
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Delete Failed ❌"
       );
 
     }
@@ -184,11 +217,18 @@ function PcDetails({
 
         </div>
 
-        <button
+        <div className="
+          flex
+          gap-4
+        ">
 
-          onClick={shutdownPC}
+          {/* SHUTDOWN */}
 
-          className="
+          <button
+
+            onClick={shutdownPC}
+
+            className="
             bg-red-600
             hover:bg-red-700
             px-6
@@ -196,13 +236,37 @@ function PcDetails({
             rounded-2xl
             font-bold
             transition-all
-          "
+            "
 
-        >
+          >
 
-          Shutdown
+            Shutdown
 
-        </button>
+          </button>
+
+          {/* DELETE */}
+
+          <button
+
+            onClick={deletePC}
+
+            className="
+            bg-slate-700
+            hover:bg-slate-800
+            px-6
+            py-3
+            rounded-2xl
+            font-bold
+            transition-all
+            "
+
+          >
+
+            Delete PC
+
+          </button>
+
+        </div>
 
       </div>
 
@@ -213,7 +277,6 @@ function PcDetails({
         grid-cols-1
         md:grid-cols-3
         gap-6
-        mb-8
       ">
 
         {/* CPU */}
@@ -315,170 +378,6 @@ function PcDetails({
             </span>
 
           </h1>
-
-        </div>
-
-      </div>
-
-      {/* GRAPH SECTION */}
-
-      <div className="
-        grid
-        grid-cols-1
-        lg:grid-cols-3
-        gap-6
-      ">
-
-        {/* CPU GRAPH */}
-
-        <div className="
-          bg-[#020817]
-          p-6
-          rounded-3xl
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-5
-          ">
-
-            CPU Graph
-
-          </h2>
-
-          <ResponsiveContainer
-            width="100%"
-            height={260}
-          >
-
-            <LineChart
-              data={history}
-            >
-
-              <CartesianGrid
-                stroke="#1e293b"
-              />
-
-              <XAxis hide />
-
-              <YAxis />
-
-              <Tooltip />
-
-              <Line
-                type="monotone"
-                dataKey="cpuUsage"
-                stroke="#ffffff"
-                strokeWidth={4}
-                dot={false}
-              />
-
-            </LineChart>
-
-          </ResponsiveContainer>
-
-        </div>
-
-        {/* RAM GRAPH */}
-
-        <div className="
-          bg-[#020817]
-          p-6
-          rounded-3xl
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-5
-          ">
-
-            RAM Graph
-
-          </h2>
-
-          <ResponsiveContainer
-            width="100%"
-            height={260}
-          >
-
-            <LineChart
-              data={history}
-            >
-
-              <CartesianGrid
-                stroke="#1e293b"
-              />
-
-              <XAxis hide />
-
-              <YAxis />
-
-              <Tooltip />
-
-              <Line
-                type="monotone"
-                dataKey="ramUsage"
-                stroke="#22c55e"
-                strokeWidth={4}
-                dot={false}
-              />
-
-            </LineChart>
-
-          </ResponsiveContainer>
-
-        </div>
-
-        {/* INTERNET GRAPH */}
-
-        <div className="
-          bg-[#020817]
-          p-6
-          rounded-3xl
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-5
-          ">
-
-            Internet Speed Graph
-
-          </h2>
-
-          <ResponsiveContainer
-            width="100%"
-            height={260}
-          >
-
-            <LineChart
-              data={history}
-            >
-
-              <CartesianGrid
-                stroke="#1e293b"
-              />
-
-              <XAxis hide />
-
-              <YAxis />
-
-              <Tooltip />
-
-              <Line
-                type="monotone"
-                dataKey="internetSpeed"
-                stroke="#facc15"
-                strokeWidth={4}
-                dot={false}
-              />
-
-            </LineChart>
-
-          </ResponsiveContainer>
 
         </div>
 

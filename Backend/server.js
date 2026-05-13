@@ -12,6 +12,12 @@ require("cors");
 const http =
 require("http");
 
+const bcrypt =
+require("bcryptjs");
+
+const jwt =
+require("jsonwebtoken");
+
 const {
 
   Server,
@@ -23,6 +29,9 @@ require("./models/PC");
 
 const SystemLog =
 require("./models/SystemLog");
+
+const User =
+require("./models/User");
 
 // ==========================
 // APP
@@ -108,6 +117,307 @@ io.on(
 );
 
 // ==========================
+// REGISTER
+// ==========================
+
+app.post(
+
+  "/api/register",
+
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        username,
+        password,
+        confirmPassword,
+
+      } = req.body;
+
+      // PASSWORD MATCH
+
+      if (
+
+        password !==
+        confirmPassword
+
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+          "Passwords do not match",
+
+        });
+
+      }
+
+      // USER EXISTS
+
+      const existingUser =
+      await User.findOne({
+
+        username,
+
+      });
+
+      if (existingUser) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+          "User already exists",
+
+        });
+
+      }
+
+      // HASH PASSWORD
+
+      const hashedPassword =
+      await bcrypt.hash(
+
+        password,
+
+        10
+
+      );
+
+      // CREATE USER
+
+      const user =
+      await User.create({
+
+        username,
+
+        password:
+        hashedPassword,
+
+      });
+
+      res.json({
+
+        success: true,
+
+        user,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+
+);
+
+// ==========================
+// LOGIN
+// ==========================
+
+app.post(
+
+  "/api/login",
+
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        username,
+        password,
+
+      } = req.body;
+
+      const user =
+      await User.findOne({
+
+        username,
+
+      });
+
+      if (!user) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+          "User not found",
+
+        });
+
+      }
+
+      const isMatch =
+      await bcrypt.compare(
+
+        password,
+
+        user.password
+
+      );
+
+      if (!isMatch) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+          "Wrong Password",
+
+        });
+
+      }
+
+      // TOKEN
+
+      const token =
+      jwt.sign(
+
+        {
+
+          id: user._id,
+
+        },
+
+        "secretkey",
+
+        {
+
+          expiresIn: "7d",
+
+        }
+
+      );
+
+      res.json({
+
+        success: true,
+
+        token,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+
+);
+
+// ==========================
+// FORGOT PASSWORD
+// ==========================
+
+app.post(
+
+  "/api/forgot-password",
+
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        username,
+        newPassword,
+
+      } = req.body;
+
+      const user =
+      await User.findOne({
+
+        username,
+
+      });
+
+      if (!user) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+          "User not found",
+
+        });
+
+      }
+
+      // HASH PASSWORD
+
+      const hashedPassword =
+      await bcrypt.hash(
+
+        newPassword,
+
+        10
+
+      );
+
+      user.password =
+      hashedPassword;
+
+      await user.save();
+
+      res.json({
+
+        success: true,
+
+        message:
+        "Password Updated",
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+
+);
+
+// ==========================
 // HEARTBEAT API
 // ==========================
 
@@ -132,10 +442,6 @@ app.post(
         screenshot,
 
       } = req.body;
-
-      // ==========================
-      // UPDATE OR CREATE PC
-      // ==========================
 
       const updatedPC =
       await PC.findOneAndUpdate(
@@ -173,9 +479,7 @@ app.post(
 
       );
 
-      // ==========================
       // SAVE LOG
-      // ==========================
 
       await SystemLog.create({
 
@@ -191,9 +495,7 @@ app.post(
 
       });
 
-      // ==========================
       // REALTIME UPDATE
-      // ==========================
 
       io.emit(
 
@@ -380,59 +682,6 @@ app.post(
 );
 
 // ==========================
-// AUTO OFFLINE CHECK
-// ==========================
-
-setInterval(
-
-  async () => {
-
-    try {
-
-      const fiveMinutesAgo =
-      new Date(
-
-        Date.now() -
-        1000 * 60 * 1
-
-      );
-
-      await PC.updateMany(
-
-        {
-
-          lastSeen: {
-
-            $lt:
-            fiveMinutesAgo,
-
-          },
-
-        },
-
-        {
-
-          status:
-          "Offline",
-
-        }
-
-      );
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-    }
-
-  },
-
-  10000
-
-);
-// ==========================
 // DELETE PC
 // ==========================
 
@@ -447,15 +696,11 @@ app.delete(
       const pcName =
       req.params.pcName;
 
-      // DELETE PC
-
       await PC.deleteOne({
 
         pcName,
 
       });
-
-      // DELETE LOGS
 
       await SystemLog.deleteMany({
 
@@ -488,6 +733,60 @@ app.delete(
 );
 
 // ==========================
+// AUTO OFFLINE CHECK
+// ==========================
+
+setInterval(
+
+  async () => {
+
+    try {
+
+      const oneMinuteAgo =
+      new Date(
+
+        Date.now() -
+        1000 * 60 * 1
+
+      );
+
+      await PC.updateMany(
+
+        {
+
+          lastSeen: {
+
+            $lt:
+            oneMinuteAgo,
+
+          },
+
+        },
+
+        {
+
+          status:
+          "Offline",
+
+        }
+
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+    }
+
+  },
+
+  10000
+
+);
+
+// ==========================
 // PORT
 // ==========================
 
@@ -508,4 +807,4 @@ server.listen(
 
   }
 
-);  
+);

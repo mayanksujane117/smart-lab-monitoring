@@ -1,379 +1,416 @@
-// PcDetails.jsx
+// client.js
 
-import { useEffect } from "react";
+const axios =
+require("axios");
 
-import axios from "axios";
+const os =
+require("os");
 
-function PcDetails({
+const si =
+require("systeminformation");
 
-  selectedPC,
+const io =
+require("socket.io-client");
 
-}) {
+const activeWin =
+require("active-win");
 
-  // ==========================
-  // FETCH HISTORY
-  // ==========================
+const {
 
-  useEffect(() => {
+  exec,
 
-    if (!selectedPC) return;
+} = require("child_process");
 
-    const fetchHistory =
-    async () => {
+// ==========================
+// SERVER URL
+// ==========================
 
-      try {
+const SERVER =
+"https://smart-lab-monitoring.onrender.com";
 
-        await axios.get(
+// ==========================
+// SOCKET CONNECT
+// ==========================
 
-          `http://localhost:5000/api/history/${selectedPC.pcName}`
+const socket =
+io(SERVER);
 
-        );
+// ==========================
+// GET IP ADDRESS
+// ==========================
+
+function getIPAddress() {
+
+  const networkInterfaces =
+  os.networkInterfaces();
+
+  let ipAddress =
+  "Unknown";
+
+  for (const interfaceName in networkInterfaces) {
+
+    const interfaces =
+    networkInterfaces[
+      interfaceName
+    ];
+
+    for (const iface of interfaces) {
+
+      if (
+
+        iface.family ===
+        "IPv4" &&
+
+        !iface.internal
+
+      ) {
+
+        ipAddress =
+        iface.address;
 
       }
 
-      catch (error) {
+    }
 
-        console.log(error);
+  }
 
-      }
+  return ipAddress;
 
-    };
+}
 
-    fetchHistory();
+// ==========================
+// HEARTBEAT FUNCTION
+// ==========================
 
-    const interval =
-    setInterval(
-      fetchHistory,
-      5000
+async function sendHeartbeat() {
+
+  try {
+
+    // ==========================
+    // CPU
+    // ==========================
+
+    const cpuData =
+    await si.currentLoad();
+
+    const cpuUsage =
+    cpuData.currentLoad.toFixed(
+      0
     );
 
-    return () =>
-    clearInterval(interval);
+    // ==========================
+    // RAM
+    // ==========================
 
-  }, [selectedPC]);
+    const memData =
+    await si.mem();
 
-  // ==========================
-  // SHUTDOWN
-  // ==========================
+    const ramUsage =
+    (
 
-  const shutdownPC =
+      (
+        memData.used /
+        memData.total
+      ) * 100
+
+    ).toFixed(0);
+
+    // ==========================
+    // INTERNET
+    // ==========================
+
+    const networkData =
+    await si.networkStats();
+
+    const internetSpeed =
+    (
+
+      networkData[0]
+      ?.rx_sec / 1024
+
+    ).toFixed(2);
+
+    // ==========================
+    // ACTIVE APP
+    // ==========================
+
+    let activeApp =
+    "Unknown";
+
+    try {
+
+      const active =
+      await activeWin();
+
+      activeApp =
+      active?.title ||
+      "Unknown";
+
+    }
+
+    catch {
+
+      console.log(
+        "Active App Error"
+      );
+
+    }
+
+    // ==========================
+    // SEND DATA
+    // ==========================
+
+    await axios.post(
+
+      `${SERVER}/api/heartbeat`,
+
+      {
+
+        pcName:
+        os.hostname(),
+
+        lab:
+        "Lab 1",
+
+        ipAddress:
+        getIPAddress(),
+
+        status:
+        "Online",
+
+        cpuUsage,
+
+        ramUsage,
+
+        internetSpeed,
+
+        activeApp,
+
+        lastSeen:
+        new Date(),
+
+      }
+
+    );
+
+    console.log(
+      "💓 Heartbeat Sent"
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(
+      "❌ Heartbeat Error"
+    );
+
+    console.log(
+      error.message
+    );
+
+  }
+
+}
+
+// ==========================
+// SEND EVERY 5 SEC
+// ==========================
+
+sendHeartbeat();
+
+setInterval(
+
+  sendHeartbeat,
+
+  5000
+
+);
+
+// ==========================
+// SHUTDOWN SINGLE PC
+// ==========================
+
+socket.on(
+
+  "shutdown-pc",
+
+  (pcName) => {
+
+    if (
+
+      pcName ===
+      os.hostname()
+
+    ) {
+
+      console.log(
+        "⚠ Shutdown Command Received"
+      );
+
+      exec(
+        "shutdown /s /t 0"
+      );
+
+    }
+
+  }
+
+);
+
+// ==========================
+// SHUTDOWN ALL PCs
+// ==========================
+
+socket.on(
+
+  "shutdown-all",
+
+  () => {
+
+    console.log(
+      "⚠ Shutdown ALL PCs"
+    );
+
+    exec(
+      "shutdown /s /t 0"
+    );
+
+  }
+
+);
+
+// ==========================
+// RESTART PC
+// ==========================
+
+socket.on(
+
+  "restart-pc",
+
+  (pcName) => {
+
+    if (
+
+      pcName ===
+      os.hostname()
+
+    ) {
+
+      console.log(
+        "🔄 Restart Command"
+      );
+
+      exec(
+        "shutdown /r /t 0"
+      );
+
+    }
+
+  }
+
+);
+
+// ==========================
+// LOCK PC
+// ==========================
+
+socket.on(
+
+  "lock-pc",
+
+  (pcName) => {
+
+    if (
+
+      pcName ===
+      os.hostname()
+
+    ) {
+
+      console.log(
+        "🔒 Lock Command"
+      );
+
+      exec(
+
+        "rundll32.exe user32.dll,LockWorkStation"
+
+      );
+
+    }
+
+  }
+
+);
+
+// ==========================
+// SLEEP PC
+// ==========================
+
+socket.on(
+
+  "sleep-pc",
+
+  (pcName) => {
+
+    if (
+
+      pcName ===
+      os.hostname()
+
+    ) {
+
+      console.log(
+        "😴 Sleep Command"
+      );
+
+      exec(
+
+        "rundll32.exe powrprof.dll,SetSuspendState 0,1,0"
+
+      );
+
+    }
+
+  }
+
+);
+
+// ==========================
+// OFFLINE DETECTION
+// ==========================
+
+process.on(
+
+  "SIGINT",
+
   async () => {
 
     try {
 
       await axios.post(
 
-        "http://localhost:5000/api/shutdown",
+        `${SERVER}/api/heartbeat`,
 
         {
 
           pcName:
-          selectedPC.pcName,
+          os.hostname(),
+
+          status:
+          "Offline",
 
         }
 
       );
 
-      alert(
-        "Shutdown command sent 🚀"
-      );
-
     }
 
-    catch (error) {
+    catch {}
 
-      console.log(error);
-
-      alert(
-        "Shutdown failed "
-      );
-
-    }
-
-  };
-
-  const deletePC =
-async () => {
-
-  const confirmDelete =
-  window.confirm(
-
-    `Delete ${selectedPC.pcName} ?`
-
-  );
-
-  if (!confirmDelete) return;
-
-  try {
-
-    await axios.delete(
-
-      `http://localhost:5000/api/delete-pc/${selectedPC.pcName}`
-
-    );
-
-    alert(
-      "PC Deleted 🚀"
-    );
-
-    window.location.reload();
+    process.exit();
 
   }
 
-  catch (error) {
-
-    console.log(error);
-
-    alert(
-      "Delete Failed ❌"
-    );
-
-  }
-
-};
-
-  // ==========================
-  // NO PC SELECTED
-  // ==========================
-
-  if (!selectedPC) {
-
-    return (
-
-      <div className="
-        mt-8
-        bg-[#081028]
-        p-6
-        rounded-3xl
-      ">
-
-        <h2 className="
-          text-3xl
-          font-bold
-          text-white
-        ">
-
-          Select a PC
-
-        </h2>
-
-      </div>
-
-    );
-
-  }
-
-  return (
-
-    <div className="
-      mt-8
-      bg-[#081028]
-      p-6
-      rounded-3xl
-      text-white
-    ">
-
-      {/* HEADER */}
-
-      <div className="
-        flex
-        justify-between
-        items-center
-        mb-8
-      ">
-
-        <div>
-
-          <h1 className="
-            text-4xl
-            font-bold
-          ">
-
-            {selectedPC.pcName}
-
-          </h1>
-
-          <p className="
-            text-gray-400
-            mt-2
-          ">
-
-            {selectedPC.ipAddress}
-
-          </p>
-
-        </div>
-
-        <div className="
-flex
-gap-4
-">
-
-  {/* SHUTDOWN */}
-
-  <button
-
-    onClick={shutdownPC}
-
-    className="
-    bg-red-600
-    hover:bg-red-700
-    px-6
-    py-3
-    rounded-2xl
-    font-bold
-    transition-all
-    "
-
-  >
-
-    Shutdown
-
-  </button>
-
-  {/* DELETE */}
-
-  <button
-
-    onClick={deletePC}
-
-    className="
-    bg-slate-700
-    hover:bg-slate-800
-    px-6
-    py-3
-    rounded-2xl
-    font-bold
-    transition-all
-    "
-
-  >
-
-    Delete PC
-
-  </button>
-
-</div>
-
-      </div>
-
-      {/* LIVE STATS */}
-
-      <div className="
-        grid
-        grid-cols-1
-        md:grid-cols-3
-        gap-6
-      ">
-
-        {/* CPU */}
-
-        <div className="
-          bg-[#020817]
-          p-8
-          rounded-3xl
-          shadow-lg
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-4
-          ">
-
-            CPU Usage
-
-          </h2>
-
-          <h1 className="
-            text-7xl
-            font-bold
-            text-white
-          ">
-
-            {selectedPC.cpuUsage}%
-
-          </h1>
-
-        </div>
-
-        {/* RAM */}
-
-        <div className="
-          bg-[#020817]
-          p-8
-          rounded-3xl
-          shadow-lg
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-4
-          ">
-
-            RAM Usage
-
-          </h2>
-
-          <h1 className="
-            text-7xl
-            font-bold
-            text-green-400
-          ">
-
-            {selectedPC.ramUsage}%
-
-          </h1>
-
-        </div>
-
-        {/* INTERNET */}
-
-        <div className="
-          bg-[#020817]
-          p-8
-          rounded-3xl
-          shadow-lg
-        ">
-
-          <h2 className="
-            text-2xl
-            font-bold
-            mb-4
-          ">
-
-            Internet Speed
-
-          </h2>
-
-          <h1 className="
-            text-6xl
-            font-bold
-            text-yellow-400
-          ">
-
-            {selectedPC.internetSpeed}
-
-            <span className="
-              text-3xl
-              ml-2
-            ">
-
-              Mbps
-
-            </span>
-
-          </h1>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  );
-
-}
-
-export default PcDetails;
+);
