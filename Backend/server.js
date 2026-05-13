@@ -1,37 +1,50 @@
-const express = require("express");
+// server.js
 
-const mongoose = require("mongoose");
+const express =
+require("express");
 
-const cors = require("cors");
+const mongoose =
+require("mongoose");
 
-const http = require("http");
+const cors =
+require("cors");
 
-const { Server } = require("socket.io");
+const http =
+require("http");
 
-require("dotenv").config();
+const {
 
-// ==========================
-// IMPORT MODELS
-// ==========================
+  Server,
 
-const PC = require("./models/PC");
+} = require("socket.io");
+
+const PC =
+require("./models/PC");
 
 const SystemLog =
 require("./models/SystemLog");
 
 // ==========================
-// APP SETUP
+// APP
 // ==========================
 
-const app = express();
+const app =
+express();
 
 const server =
 http.createServer(app);
 
-const io = new Server(server, {
+// ==========================
+// SOCKET IO
+// ==========================
+
+const io =
+new Server(server, {
 
   cors: {
+
     origin: "*",
+
   },
 
 });
@@ -42,32 +55,33 @@ const io = new Server(server, {
 
 app.use(cors());
 
-app.use(
-  express.json({
-    limit: "50mb",
-  })
-);
+app.use(express.json({
+
+  limit: "50mb",
+
+}));
 
 // ==========================
-// MONGODB CONNECT
+// MONGODB
 // ==========================
 
-mongoose
-.connect(process.env.MONGO_URI)
+mongoose.connect(
+
+  "mongodb://127.0.0.1:27017/slms"
+
+)
 
 .then(() => {
 
   console.log(
+
     "✅ MongoDB Connected"
+
   );
 
 })
 
 .catch((err) => {
-
-  console.log(
-    "❌ MongoDB Error"
-  );
 
   console.log(err);
 
@@ -78,29 +92,19 @@ mongoose
 // ==========================
 
 io.on(
+
   "connection",
 
   (socket) => {
 
     console.log(
-      "⚡ User Connected:",
-      socket.id
-    );
 
-    socket.on(
-      "disconnect",
+      "⚡ Client Connected"
 
-      () => {
-
-        console.log(
-          "❌ User Disconnected:",
-          socket.id
-        );
-
-      }
     );
 
   }
+
 );
 
 // ==========================
@@ -124,93 +128,64 @@ app.post(
         cpuUsage,
         ramUsage,
         internetSpeed,
+        activeApp,
+        screenshot,
 
       } = req.body;
 
-      let pc =
-      await PC.findOne({
-        pcName,
-      });
-
       // ==========================
-      // UPDATE EXISTING PC
+      // UPDATE OR CREATE PC
       // ==========================
 
-      if (pc) {
+      const updatedPC =
+      await PC.findOneAndUpdate(
 
-        pc.lab = lab;
-
-        pc.ipAddress =
-        ipAddress;
-
-        pc.status =
-        status;
-
-        pc.cpuUsage =
-        Number(cpuUsage);
-
-        pc.ramUsage =
-        Number(ramUsage);
-
-        pc.internetSpeed =
-        Number(internetSpeed);
-
-        pc.lastSeen =
-        new Date();
-
-        await pc.save();
-
-      }
-
-      // ==========================
-      // CREATE NEW PC
-      // ==========================
-
-      else {
-
-        pc =
-        await PC.create({
+        {
 
           pcName,
 
+        },
+
+        {
+
+          pcName,
           lab,
-
           ipAddress,
-
           status,
-
-          cpuUsage:
-          Number(cpuUsage),
-
-          ramUsage:
-          Number(ramUsage),
-
-          internetSpeed:
-          Number(internetSpeed),
+          cpuUsage,
+          ramUsage,
+          internetSpeed,
+          activeApp,
+          screenshot,
 
           lastSeen:
           new Date(),
 
-        });
+        },
 
-      }
+        {
+
+          upsert: true,
+
+          new: true,
+
+        }
+
+      );
 
       // ==========================
-      // SAVE HISTORY
+      // SAVE LOG
       // ==========================
 
       await SystemLog.create({
 
         pcName,
 
-        cpuUsage:
-        Number(cpuUsage),
+        cpuUsage,
 
-        ramUsage:
-        Number(ramUsage),
+        ramUsage,
 
-        internetSpeed:
-        Number(internetSpeed),
+        internetSpeed,
 
         status,
 
@@ -221,16 +196,16 @@ app.post(
       // ==========================
 
       io.emit(
+
         "pc-update",
-        pc
+
+        updatedPC
+
       );
 
       res.json({
 
         success: true,
-
-        message:
-        "Heartbeat Received",
 
       });
 
@@ -242,17 +217,19 @@ app.post(
 
       res.status(500).json({
 
-        success: false,
+        error:
+        "Server Error",
 
       });
 
     }
 
   }
+
 );
 
 // ==========================
-// GET ALL PCS
+// GET PCS
 // ==========================
 
 app.get(
@@ -264,7 +241,13 @@ app.get(
     try {
 
       const pcs =
-      await PC.find();
+      await PC.find()
+
+      .sort({
+
+        lastSeen: -1,
+
+      });
 
       res.json(pcs);
 
@@ -276,13 +259,15 @@ app.get(
 
       res.status(500).json({
 
-        success: false,
+        error:
+        "Server Error",
 
       });
 
     }
 
   }
+
 );
 
 // ==========================
@@ -297,7 +282,7 @@ app.get(
 
     try {
 
-      const history =
+      const logs =
       await SystemLog.find({
 
         pcName:
@@ -306,12 +291,14 @@ app.get(
       })
 
       .sort({
+
         createdAt: -1,
+
       })
 
       .limit(20);
 
-      res.json(history);
+      res.json(logs);
 
     }
 
@@ -321,45 +308,164 @@ app.get(
 
       res.status(500).json({
 
-        success: false,
+        error:
+        "Server Error",
 
       });
 
     }
 
   }
+
 );
 
 // ==========================
-// REMOTE SHUTDOWN
+// SHUTDOWN SINGLE PC
 // ==========================
 
 app.post(
 
   "/api/shutdown",
 
+  (req, res) => {
+
+    const {
+
+      pcName,
+
+    } = req.body;
+
+    io.emit(
+
+      "shutdown-pc",
+
+      pcName
+
+    );
+
+    res.json({
+
+      success: true,
+
+    });
+
+  }
+
+);
+
+// ==========================
+// SHUTDOWN ALL PCs
+// ==========================
+
+app.post(
+
+  "/api/shutdown-all",
+
+  (req, res) => {
+
+    io.emit(
+
+      "shutdown-all"
+
+    );
+
+    res.json({
+
+      success: true,
+
+    });
+
+  }
+
+);
+
+// ==========================
+// AUTO OFFLINE CHECK
+// ==========================
+
+setInterval(
+
+  async () => {
+
+    try {
+
+      const fiveMinutesAgo =
+      new Date(
+
+        Date.now() -
+        1000 * 60 * 1
+
+      );
+
+      await PC.updateMany(
+
+        {
+
+          lastSeen: {
+
+            $lt:
+            fiveMinutesAgo,
+
+          },
+
+        },
+
+        {
+
+          status:
+          "Offline",
+
+        }
+
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+    }
+
+  },
+
+  10000
+
+);
+// ==========================
+// DELETE PC
+// ==========================
+
+app.delete(
+
+  "/api/delete-pc/:pcName",
+
   async (req, res) => {
 
     try {
 
-      const { pcName } =
-      req.body;
+      const pcName =
+      req.params.pcName;
 
-      io.emit(
-        "shutdown-pc",
-        pcName
-      );
+      // DELETE PC
 
-      console.log(
-        `⚠ Shutdown Sent To ${pcName}`
-      );
+      await PC.deleteOne({
+
+        pcName,
+
+      });
+
+      // DELETE LOGS
+
+      await SystemLog.deleteMany({
+
+        pcName,
+
+      });
 
       res.json({
 
         success: true,
-
-        message:
-        "Shutdown Command Sent",
 
       });
 
@@ -378,89 +484,28 @@ app.post(
     }
 
   }
+
 );
 
 // ==========================
-// AUTO STATUS CHECKER
-// ==========================
-
-setInterval(async () => {
-
-  try {
-
-    const pcs =
-    await PC.find();
-
-    const now =
-    Date.now();
-
-    for (const pc of pcs) {
-
-      const diff =
-      now -
-      new Date(
-        pc.lastSeen
-      ).getTime();
-
-      // ONLINE
-
-      if (diff < 15000) {
-
-        pc.status =
-        "Online";
-
-      }
-
-      // SLEEPING
-
-      else if (
-        diff < 120000
-      ) {
-
-        pc.status =
-        "Sleeping";
-
-      }
-
-      // OFFLINE
-
-      else {
-
-        pc.status =
-        "Offline";
-
-      }
-
-      await pc.save();
-
-      io.emit(
-        "pc-update",
-        pc
-      );
-
-    }
-
-  }
-
-  catch (error) {
-
-    console.log(error);
-
-  }
-
-}, 5000);
-
-// ==========================
-// SERVER START
+// PORT
 // ==========================
 
 const PORT =
-process.env.PORT || 5000;
+5000;
 
-server.listen(PORT, () => {
+server.listen(
 
-  console.log(
-    `🚀 Server Running On Port ${PORT}`
-  );
+  PORT,
 
-});
+  () => {
+
+    console.log(
+
+      `🚀 Server Running On Port ${PORT}`
+
+    );
+
+  }
+
+);  

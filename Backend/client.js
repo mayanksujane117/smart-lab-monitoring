@@ -1,324 +1,379 @@
-// client.js
+// PcDetails.jsx
 
-const axios = require("axios");
+import { useEffect } from "react";
 
-const os = require("os");
+import axios from "axios";
 
-const si =
-require("systeminformation");
+function PcDetails({
 
-const io =
-require("socket.io-client");
+  selectedPC,
 
-const {
-  exec,
-} = require("child_process");
+}) {
 
-// ==========================
-// SOCKET CONNECT
-// ==========================
+  // ==========================
+  // FETCH HISTORY
+  // ==========================
 
-const socket = io(
-  "https://smart-lab-monitoring.onrender.com"
-);
+  useEffect(() => {
 
-// ==========================
-// GET IP ADDRESS
-// ==========================
+    if (!selectedPC) return;
 
-const networkInterfaces =
-os.networkInterfaces();
+    const fetchHistory =
+    async () => {
 
-let ipAddress = "Unknown";
+      try {
 
-for (const interfaceName in networkInterfaces) {
+        await axios.get(
 
-  const interfaces =
-  networkInterfaces[
-    interfaceName
-  ];
+          `http://localhost:5000/api/history/${selectedPC.pcName}`
 
-  for (const iface of interfaces) {
-
-    if (
-
-      iface.family === "IPv4" &&
-
-      !iface.internal
-
-    ) {
-
-      ipAddress =
-      iface.address;
-
-    }
-
-  }
-
-}
-
-console.log(
-  "🌐 IP Address:",
-  ipAddress
-);
-
-// ==========================
-// HEARTBEAT FUNCTION
-// ==========================
-
-async function sendHeartbeat() {
-
-  try {
-
-    // CPU
-
-    const cpu =
-    await si.currentLoad();
-
-    // RAM
-
-    const mem =
-    await si.mem();
-
-    // INTERNET
-
-    const network =
-    await si.networkStats();
-
-    const internetSpeed =
-    (
-      network[0]?.rx_sec /
-      1024
-    ).toFixed(2);
-
-    // SEND DATA
-
-    await axios.post(
-
-      "https://smart-lab-monitoring.onrender.com/api/heartbeat",
-
-      {
-
-        pcName:
-        os.hostname(),
-
-        lab: "Lab 1",
-
-        ipAddress,
-
-        status:
-        "Online",
-
-        cpuUsage:
-        cpu.currentLoad.toFixed(0),
-
-        ramUsage:
-        (
-          (
-            mem.used /
-            mem.total
-          ) * 100
-        ).toFixed(0),
-
-        internetSpeed,
+        );
 
       }
 
+      catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
+    fetchHistory();
+
+    const interval =
+    setInterval(
+      fetchHistory,
+      5000
     );
 
-    console.log(
-      "💓 Heartbeat Sent"
-    );
+    return () =>
+    clearInterval(interval);
 
-  }
+  }, [selectedPC]);
 
-  catch (error) {
+  // ==========================
+  // SHUTDOWN
+  // ==========================
 
-    console.log(
-      "❌ Error:",
-      error.message
-    );
-
-  }
-
-}
-
-// ==========================
-// SEND EVERY 5 SEC
-// ==========================
-
-sendHeartbeat();
-
-setInterval(
-
-  sendHeartbeat,
-
-  5000
-
-);
-
-// ==========================
-// SHUTDOWN LISTENER
-// ==========================
-
-socket.on(
-
-  "shutdown-pc",
-
-  (pcName) => {
-
-    if (
-
-      pcName ===
-      os.hostname()
-
-    ) {
-
-      console.log(
-        "⚠ Shutdown Command Received"
-      );
-
-      exec(
-        "shutdown /s /t 0"
-      );
-
-    }
-
-  }
-
-);
-
-// ==========================
-// RESTART LISTENER
-// ==========================
-
-socket.on(
-
-  "restart-pc",
-
-  (pcName) => {
-
-    if (
-
-      pcName ===
-      os.hostname()
-
-    ) {
-
-      console.log(
-        "🔄 Restart Command Received"
-      );
-
-      exec(
-        "shutdown /r /t 0"
-      );
-
-    }
-
-  }
-
-);
-
-// ==========================
-// LOCK LISTENER
-// ==========================
-
-socket.on(
-
-  "lock-pc",
-
-  (pcName) => {
-
-    if (
-
-      pcName ===
-      os.hostname()
-
-    ) {
-
-      console.log(
-        "🔒 Lock Command Received"
-      );
-
-      exec(
-        "rundll32.exe user32.dll,LockWorkStation"
-      );
-
-    }
-
-  }
-
-);
-
-// ==========================
-// SLEEP LISTENER
-// ==========================
-
-socket.on(
-
-  "sleep-pc",
-
-  (pcName) => {
-
-    if (
-
-      pcName ===
-      os.hostname()
-
-    ) {
-
-      console.log(
-        "😴 Sleep Command Received"
-      );
-
-      exec(
-        "rundll32.exe powrprof.dll,SetSuspendState 0,1,0"
-      );
-
-    }
-
-  }
-
-);
-
-// ==========================
-// OFFLINE DETECTION
-// ==========================
-
-process.on(
-
-  "SIGINT",
-
+  const shutdownPC =
   async () => {
 
     try {
 
       await axios.post(
 
-        "https://smart-lab-monitoring.onrender.com/api/heartbeat",
+        "http://localhost:5000/api/shutdown",
 
         {
 
           pcName:
-          os.hostname(),
-
-          lab: "Lab 1",
-
-          ipAddress,
-
-          status:
-          "Offline",
+          selectedPC.pcName,
 
         }
 
       );
 
+      alert(
+        "Shutdown command sent 🚀"
+      );
+
     }
 
-    catch {}
+    catch (error) {
 
-    process.exit();
+      console.log(error);
+
+      alert(
+        "Shutdown failed "
+      );
+
+    }
+
+  };
+
+  const deletePC =
+async () => {
+
+  const confirmDelete =
+  window.confirm(
+
+    `Delete ${selectedPC.pcName} ?`
+
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+
+    await axios.delete(
+
+      `http://localhost:5000/api/delete-pc/${selectedPC.pcName}`
+
+    );
+
+    alert(
+      "PC Deleted 🚀"
+    );
+
+    window.location.reload();
 
   }
 
-);
+  catch (error) {
+
+    console.log(error);
+
+    alert(
+      "Delete Failed ❌"
+    );
+
+  }
+
+};
+
+  // ==========================
+  // NO PC SELECTED
+  // ==========================
+
+  if (!selectedPC) {
+
+    return (
+
+      <div className="
+        mt-8
+        bg-[#081028]
+        p-6
+        rounded-3xl
+      ">
+
+        <h2 className="
+          text-3xl
+          font-bold
+          text-white
+        ">
+
+          Select a PC
+
+        </h2>
+
+      </div>
+
+    );
+
+  }
+
+  return (
+
+    <div className="
+      mt-8
+      bg-[#081028]
+      p-6
+      rounded-3xl
+      text-white
+    ">
+
+      {/* HEADER */}
+
+      <div className="
+        flex
+        justify-between
+        items-center
+        mb-8
+      ">
+
+        <div>
+
+          <h1 className="
+            text-4xl
+            font-bold
+          ">
+
+            {selectedPC.pcName}
+
+          </h1>
+
+          <p className="
+            text-gray-400
+            mt-2
+          ">
+
+            {selectedPC.ipAddress}
+
+          </p>
+
+        </div>
+
+        <div className="
+flex
+gap-4
+">
+
+  {/* SHUTDOWN */}
+
+  <button
+
+    onClick={shutdownPC}
+
+    className="
+    bg-red-600
+    hover:bg-red-700
+    px-6
+    py-3
+    rounded-2xl
+    font-bold
+    transition-all
+    "
+
+  >
+
+    Shutdown
+
+  </button>
+
+  {/* DELETE */}
+
+  <button
+
+    onClick={deletePC}
+
+    className="
+    bg-slate-700
+    hover:bg-slate-800
+    px-6
+    py-3
+    rounded-2xl
+    font-bold
+    transition-all
+    "
+
+  >
+
+    Delete PC
+
+  </button>
+
+</div>
+
+      </div>
+
+      {/* LIVE STATS */}
+
+      <div className="
+        grid
+        grid-cols-1
+        md:grid-cols-3
+        gap-6
+      ">
+
+        {/* CPU */}
+
+        <div className="
+          bg-[#020817]
+          p-8
+          rounded-3xl
+          shadow-lg
+        ">
+
+          <h2 className="
+            text-2xl
+            font-bold
+            mb-4
+          ">
+
+            CPU Usage
+
+          </h2>
+
+          <h1 className="
+            text-7xl
+            font-bold
+            text-white
+          ">
+
+            {selectedPC.cpuUsage}%
+
+          </h1>
+
+        </div>
+
+        {/* RAM */}
+
+        <div className="
+          bg-[#020817]
+          p-8
+          rounded-3xl
+          shadow-lg
+        ">
+
+          <h2 className="
+            text-2xl
+            font-bold
+            mb-4
+          ">
+
+            RAM Usage
+
+          </h2>
+
+          <h1 className="
+            text-7xl
+            font-bold
+            text-green-400
+          ">
+
+            {selectedPC.ramUsage}%
+
+          </h1>
+
+        </div>
+
+        {/* INTERNET */}
+
+        <div className="
+          bg-[#020817]
+          p-8
+          rounded-3xl
+          shadow-lg
+        ">
+
+          <h2 className="
+            text-2xl
+            font-bold
+            mb-4
+          ">
+
+            Internet Speed
+
+          </h2>
+
+          <h1 className="
+            text-6xl
+            font-bold
+            text-yellow-400
+          ">
+
+            {selectedPC.internetSpeed}
+
+            <span className="
+              text-3xl
+              ml-2
+            ">
+
+              Mbps
+
+            </span>
+
+          </h1>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  );
+
+}
+
+export default PcDetails;
