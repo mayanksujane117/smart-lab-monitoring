@@ -1,459 +1,437 @@
-// server.js
-require("dotenv").config();
+  // server.js
 
-const express =
-require("express");
+  require("dotenv").config();
 
-const mongoose =
-require("mongoose");
+  const express =
+  require("express");
 
-const cors =
-require("cors");
+  const mongoose =
+  require("mongoose");
 
-const http =
-require("http");
+  const cors =
+  require("cors");
 
-const bcrypt =
-require("bcryptjs");
+  const http =
+  require("http");
 
-const jwt =
-require("jsonwebtoken");
+  const bcrypt =
+  require("bcryptjs");
 
-const {
+  const jwt =
+  require("jsonwebtoken");
 
-  Server,
+  const {
 
-} = require("socket.io");
+    Server,
 
-const PC =
-require("./models/PC");
+  } = require("socket.io");
 
-const SystemLog =
-require("./models/SystemLog");
+  const PC =
+  require("./models/PC");
 
-const User =
-require("./models/User");
+  const SystemLog =
+  require("./models/SystemLog");
 
-// ==========================
-// APP
-// ==========================
+  const User =
+  require("./models/User");
 
-const app =
-express();
+  // ==========================
+  // APP
+  // ==========================
 
-const server =
-http.createServer(app);
+  const app =
+  express();
 
-// ==========================
-// SOCKET IO
-// ==========================
+  const server =
+  http.createServer(app);
 
-const io =
-new Server(server, {
+  // ==========================
+  // SOCKET IO
+  // ==========================
 
-  cors: {
+  const io =
+  new Server(server, {
 
-    origin: "*",
+    cors: {
 
-  },
+      origin: "*",
 
-});
+    },
 
-// ==========================
-// MIDDLEWARE
-// ==========================
+  });
 
-app.use(cors());
+  // ==========================
+  // MIDDLEWARE
+  // ==========================
 
-app.use(express.json({
+  app.use(cors());
 
-  limit: "50mb",
+  app.use(express.json({
 
-}));
+    limit: "50mb",
 
-// ==========================
-// MONGODB
-// ==========================
+  }));
 
-mongoose.connect(
+  // ==========================
+  // MONGODB
+  // ==========================
 
-  "mongodb://127.0.0.1:27017/slms"
+  mongoose.connect(
 
-)
+    process.env.MONGO_URI
 
-.then(() => {
+  )
 
-  console.log(
-
-    "✅ MongoDB Connected"
-
-  );
-
-})
-
-.catch((err) => {
-
-  console.log(err);
-
-});
-
-// ==========================
-// SOCKET CONNECTION
-// ==========================
-
-io.on(
-
-  "connection",
-
-  (socket) => {
+  .then(() => {
 
     console.log(
 
-      "⚡ Client Connected"
+      "✅ MongoDB Connected"
 
     );
 
-  }
+  })
 
-);
+  .catch((err) => {
 
-// ==========================
-// REGISTER
-// ==========================
+    console.log(err);
 
-app.post(
+  });
 
-  "/api/register",
+  // ==========================
+  // SOCKET CONNECTION
+  // ==========================
 
-  async (req, res) => {
+  io.on(
 
-    try {
+    "connection",
 
-      const {
+    (socket) => {
 
-        username,
-        password,
-        confirmPassword,
+      console.log(
 
-      } = req.body;
-
-      // PASSWORD MATCH
-
-      if (
-
-        password !==
-        confirmPassword
-
-      ) {
-
-        return res.status(400).json({
-
-          success: false,
-
-          message:
-          "Passwords do not match",
-
-        });
-
-      }
-
-      // USER EXISTS
-
-      const existingUser =
-      await User.findOne({
-
-        username,
-
-      });
-
-      if (existingUser) {
-
-        return res.status(400).json({
-
-          success: false,
-
-          message:
-          "User already exists",
-
-        });
-
-      }
-
-      // HASH PASSWORD
-
-      const hashedPassword =
-      await bcrypt.hash(
-
-        password,
-
-        10
+        "⚡ Client Connected"
 
       );
 
-      // CREATE USER
-
-      const user =
-      await User.create({
-
-        username,
-
-        password:
-        hashedPassword,
-
-      });
-
-      res.json({
-
-        success: true,
-
-        user,
-
-      });
-
     }
 
-    catch (error) {
+  );
 
-      console.log(error);
+  // ==========================
+  // REGISTER
+  // ==========================
 
-      res.status(500).json({
+  app.post(
 
-        success: false,
+    "/api/register",
 
-      });
+    async (req, res) => {
 
-    }
+      try {
 
-  }
+        const {
 
-);
+          username,
+          password,
+          confirmPassword,
 
-// ==========================
-// LOGIN
-// ==========================
+        } = req.body;
 
-app.post(
+        // PASSWORD MATCH
 
-  "/api/login",
+        if (
 
-  async (req, res) => {
+          password !==
+          confirmPassword
 
-    try {
+        ) {
 
-      const {
+          return res.status(400).json({
 
-        username,
-        password,
+            success: false,
 
-      } = req.body;
+            message:
+            "Passwords do not match",
 
-      const user =
-      await User.findOne({
-
-        username,
-
-      });
-
-      if (!user) {
-
-        return res.status(400).json({
-
-          success: false,
-
-          message:
-          "User not found",
-
-        });
-
-      }
-
-      const isMatch =
-      await bcrypt.compare(
-
-        password,
-
-        user.password
-
-      );
-
-      if (!isMatch) {
-
-        return res.status(400).json({
-
-          success: false,
-
-          message:
-          "Wrong Password",
-
-        });
-
-      }
-
-      // TOKEN
-
-      const token =
-      jwt.sign(
-
-        {
-
-          id: user._id,
-
-        },
-
-        "secretkey",
-
-        {
-
-          expiresIn: "7d",
+          });
 
         }
 
-      );
+        // CHECK USER EXISTS
 
-      res.json({
+        const existingUser =
+        await User.findOne({
 
-        success: true,
+          username,
 
-        token,
+        });
 
-      });
+        if (existingUser) {
 
-    }
+          return res.status(400).json({
 
-    catch (error) {
+            success: false,
 
-      console.log(error);
+            message:
+            "User already exists",
 
-      res.status(500).json({
+          });
 
-        success: false,
+        }
 
-      });
+        // HASH PASSWORD
 
-    }
+        const hashedPassword =
+        await bcrypt.hash(
 
-  }
+          password,
 
-);
+          10
 
-// ==========================
-// FORGOT PASSWORD
-// ==========================
+        );
 
-app.post(
+        // CREATE USER
 
-  "/api/forgot-password",
+        const user =
+        await User.create({
 
-  async (req, res) => {
+          username,
 
-    try {
+          password:
+          hashedPassword,
 
-      const {
+        });
 
-        username,
-        newPassword,
+        res.json({
 
-      } = req.body;
+          success: true,
 
-      const user =
-      await User.findOne({
-
-        username,
-
-      });
-
-      if (!user) {
-
-        return res.status(404).json({
-
-          success: false,
-
-          message:
-          "User not found",
+          user,
 
         });
 
       }
 
-      // HASH PASSWORD
+      catch (error) {
 
-      const hashedPassword =
-      await bcrypt.hash(
+        console.log(error);
 
-        newPassword,
+        res.status(500).json({
 
-        10
+          success: false,
 
-      );
+        });
 
-      user.password =
-      hashedPassword;
-
-      await user.save();
-
-      res.json({
-
-        success: true,
-
-        message:
-        "Password Updated",
-
-      });
+      }
 
     }
 
-    catch (error) {
+  );
 
-      console.log(error);
+  // ==========================
+  // LOGIN
+  // ==========================
 
-      res.status(500).json({
+  app.post(
 
-        success: false,
+    "/api/login",
 
-      });
+    async (req, res) => {
+
+      try {
+
+        const {
+
+          username,
+          password,
+
+        } = req.body;
+
+        const user =
+        await User.findOne({
+
+          username,
+
+        });
+
+        if (!user) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+            "User not found",
+
+          });
+
+        }
+
+        const isMatch =
+        await bcrypt.compare(
+
+          password,
+
+          user.password
+
+        );
+
+        if (!isMatch) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+            "Wrong Password",
+
+          });
+
+        }
+
+        // TOKEN
+
+        const token =
+        jwt.sign(
+
+          {
+
+            id: user._id,
+
+          },
+
+          "secretkey",
+
+          {
+
+            expiresIn: "7d",
+
+          }
+
+        );
+
+        res.json({
+
+          success: true,
+
+          token,
+
+        });
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+
+          success: false,
+
+        });
+
+      }
 
     }
 
-  }
+  );
 
-);
+  // ==========================
+  // FORGOT PASSWORD
+  // ==========================
 
-// ==========================
-// HEARTBEAT API
-// ==========================
+  app.post(
 
-app.post(
+    "/api/forgot-password",
 
-  "/api/heartbeat",
+    async (req, res) => {
 
-  async (req, res) => {
+      try {
 
-    try {
+        const {
 
-      const {
+          username,
+          newPassword,
 
-        pcName,
-        lab,
-        ipAddress,
-        status,
-        cpuUsage,
-        ramUsage,
-        internetSpeed,
-        activeApp,
-        screenshot,
+        } = req.body;
 
-      } = req.body;
+        const user =
+        await User.findOne({
 
-      const updatedPC =
-      await PC.findOneAndUpdate(
+          username,
 
-        {
+        });
 
-          pcName,
+        if (!user) {
 
-        },
+          return res.status(404).json({
 
-        {
+            success: false,
+
+            message:
+            "User not found",
+
+          });
+
+        }
+
+        // HASH PASSWORD
+
+        const hashedPassword =
+        await bcrypt.hash(
+
+          newPassword,
+
+          10
+
+        );
+
+        user.password =
+        hashedPassword;
+
+        await user.save();
+
+        res.json({
+
+          success: true,
+
+          message:
+          "Password Updated",
+
+        });
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+
+          success: false,
+
+        });
+
+      }
+
+    }
+
+  );
+
+  // ==========================
+  // HEARTBEAT API
+  // ==========================
+
+  app.post(
+
+    "/api/heartbeat",
+
+    async (req, res) => {
+
+      try {
+
+        const {
 
           pcName,
           lab,
@@ -465,347 +443,392 @@ app.post(
           activeApp,
           screenshot,
 
-          lastSeen:
-          new Date(),
+        } = req.body;
 
-        },
+        // UPDATE PC
 
-        {
+        const updatedPC =
+        await PC.findOneAndUpdate(
 
-          upsert: true,
+          {
 
-          new: true,
-
-        }
-
-      );
-
-      // SAVE LOG
-
-      await SystemLog.create({
-
-        pcName,
-
-        cpuUsage,
-
-        ramUsage,
-
-        internetSpeed,
-
-        status,
-
-      });
-
-      // REALTIME UPDATE
-
-      io.emit(
-
-        "pc-update",
-
-        updatedPC
-
-      );
-
-      res.json({
-
-        success: true,
-
-      });
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-
-        error:
-        "Server Error",
-
-      });
-
-    }
-
-  }
-
-);
-
-// ==========================
-// GET PCS
-// ==========================
-
-app.get(
-
-  "/api/pcs",
-
-  async (req, res) => {
-
-    try {
-
-      const pcs =
-      await PC.find()
-
-      .sort({
-
-        lastSeen: -1,
-
-      });
-
-      res.json(pcs);
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-
-        error:
-        "Server Error",
-
-      });
-
-    }
-
-  }
-
-);
-
-// ==========================
-// GET HISTORY
-// ==========================
-
-app.get(
-
-  "/api/history/:pcName",
-
-  async (req, res) => {
-
-    try {
-
-      const logs =
-      await SystemLog.find({
-
-        pcName:
-        req.params.pcName,
-
-      })
-
-      .sort({
-
-        createdAt: -1,
-
-      })
-
-      .limit(20);
-
-      res.json(logs);
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-
-        error:
-        "Server Error",
-
-      });
-
-    }
-
-  }
-
-);
-
-// ==========================
-// SHUTDOWN SINGLE PC
-// ==========================
-
-app.post(
-
-  "/api/shutdown",
-
-  (req, res) => {
-
-    const {
-
-      pcName,
-
-    } = req.body;
-
-    io.emit(
-
-      "shutdown-pc",
-
-      pcName
-
-    );
-
-    res.json({
-
-      success: true,
-
-    });
-
-  }
-
-);
-
-// ==========================
-// SHUTDOWN ALL PCs
-// ==========================
-
-app.post(
-
-  "/api/shutdown-all",
-
-  (req, res) => {
-
-    io.emit(
-
-      "shutdown-all"
-
-    );
-
-    res.json({
-
-      success: true,
-
-    });
-
-  }
-
-);
-
-// ==========================
-// DELETE PC
-// ==========================
-
-app.delete(
-
-  "/api/delete-pc/:pcName",
-
-  async (req, res) => {
-
-    try {
-
-      const pcName =
-      req.params.pcName;
-
-      await PC.deleteOne({
-
-        pcName,
-
-      });
-
-      await SystemLog.deleteMany({
-
-        pcName,
-
-      });
-
-      res.json({
-
-        success: true,
-
-      });
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-
-        success: false,
-
-      });
-
-    }
-
-  }
-
-);
-
-// ==========================
-// AUTO OFFLINE CHECK
-// ==========================
-
-setInterval(
-
-  async () => {
-
-    try {
-
-      const oneMinuteAgo =
-      new Date(
-
-        Date.now() -
-        1000 * 60 * 1
-
-      );
-
-      await PC.updateMany(
-
-        {
-
-          lastSeen: {
-
-            $lt:
-            oneMinuteAgo,
+            pcName,
 
           },
 
-        },
+          {
 
-        {
+            pcName,
+            lab,
+            ipAddress,
+            status,
+            cpuUsage,
+            ramUsage,
+            internetSpeed,
+            activeApp,
+            screenshot,
 
-          status:
-          "Offline",
+            lastSeen:
+            new Date(),
 
-        }
+          },
+
+          {
+
+            upsert: true,
+
+            new: true,
+
+          }
+
+        );
+
+        // SAVE LOG
+
+        await SystemLog.create({
+
+          pcName,
+
+          cpuUsage,
+
+          ramUsage,
+
+          internetSpeed,
+
+          status,
+
+        });
+
+        // REALTIME UPDATE
+
+        io.emit(
+
+          "pc-update",
+
+          updatedPC
+
+        );
+
+        res.json({
+
+          success: true,
+
+        });
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+
+          error:
+          "Server Error",
+
+        });
+
+      }
+
+    }
+
+  );
+
+  // ==========================
+  // GET PCS
+  // ==========================
+
+  app.get(
+
+    "/api/pcs",
+
+    async (req, res) => {
+
+      try {
+
+        const pcs =
+        await PC.find()
+
+        .sort({
+
+          lastSeen: -1,
+
+        });
+
+        res.json(pcs);
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+
+          error:
+          "Server Error",
+
+        });
+
+      }
+
+    }
+
+  );
+
+  // ==========================
+  // GET HISTORY
+  // ==========================
+
+  app.get(
+
+    "/api/history/:pcName",
+
+    async (req, res) => {
+
+      try {
+
+        const logs =
+        await SystemLog.find({
+
+          pcName:
+          req.params.pcName,
+
+        })
+
+        .sort({
+
+          createdAt: -1,
+
+        })
+
+        .limit(20);
+
+        res.json(logs);
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+
+          error:
+          "Server Error",
+
+        });
+
+      }
+
+    }
+
+  );
+
+  // ==========================
+  // SHUTDOWN SINGLE PC
+  // ==========================
+
+  app.post(
+
+    "/api/shutdown",
+
+    (req, res) => {
+
+      const {
+
+        pcName,
+
+      } = req.body;
+
+      io.emit(
+
+        "shutdown-pc",
+
+        pcName
+
+      );
+
+      res.json({
+
+        success: true,
+
+      });
+
+    }
+
+  );
+
+  // ==========================
+  // SHUTDOWN ALL PCs
+  // ==========================
+
+  app.post(
+
+    "/api/shutdown-all",
+
+    (req, res) => {
+
+      io.emit(
+
+        "shutdown-all"
+
+      );
+
+      res.json({
+
+        success: true,
+
+      });
+
+    }
+
+  );
+
+  // ==========================
+  // DELETE PC
+  // ==========================
+
+  app.delete(
+
+    "/api/delete-pc/:pcName",
+
+    async (req, res) => {
+
+      try {
+
+        const pcName =
+        req.params.pcName;
+
+        await PC.deleteOne({
+
+          pcName,
+
+        });
+
+        await SystemLog.deleteMany({
+
+          pcName,
+
+        });
+
+        res.json({
+
+          success: true,
+
+        });
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        res.status(500).json({
+
+          success: false,
+
+        });
+
+      }
+
+    }
+
+  );
+
+  // ==========================
+  // AUTO OFFLINE CHECK
+  // ==========================
+
+  setInterval(
+
+    async () => {
+
+      try {
+
+        const oneMinuteAgo =
+        new Date(
+
+          Date.now() -
+          1000 * 60 * 1
+
+        );
+
+        await PC.updateMany(
+
+          {
+
+            lastSeen: {
+
+              $lt:
+              oneMinuteAgo,
+
+            },
+
+          },
+
+          {
+
+            status:
+            "Offline",
+
+          }
+
+        );
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+      }
+
+    },
+
+    10000
+
+  );
+
+  // ==========================
+  // ROOT ROUTE
+  // ==========================
+
+  app.get(
+
+    "/",
+
+    (req, res) => {
+
+      res.send(
+
+        "🚀 Smart Lab Monitoring Backend Running"
 
       );
 
     }
 
-    catch (error) {
+  );
 
-      console.log(error);
+  // ==========================
+  // PORT
+  // ==========================
+
+  const PORT =
+  process.env.PORT || 5000;
+
+  server.listen(
+
+    PORT,
+
+    () => {
+
+      console.log(
+
+        `🚀 Server Running On Port ${PORT}`
+
+      );
 
     }
 
-  },
-
-  10000
-
-);
-
-// ==========================
-// PORT
-// ==========================
-
-const PORT =
-5000;
-
-server.listen(
-
-  PORT,
-
-  () => {
-
-    console.log(
-
-      `🚀 Server Running On Port ${PORT}`
-
-    );
-
-  }
-
-);
+  );

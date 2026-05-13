@@ -1,10 +1,21 @@
 // App.jsx
 
-import { useEffect, useState } from "react";
+import {
+
+  useEffect,
+  useState,
+
+} from "react";
 
 import axios from "axios";
 
 import io from "socket.io-client";
+
+import {
+
+  useNavigate,
+
+} from "react-router-dom";
 
 import Header from "./components/Header";
 import StatCard from "./components/StatCard";
@@ -12,9 +23,10 @@ import PcTable from "./components/PcTable";
 import Analytics from "./components/Analytics";
 import PcDetails from "./components/PcDetails";
 
-
-
 function App() {
+
+  const navigate =
+  useNavigate();
 
   const [pcs, setPcs] =
   useState([]);
@@ -22,6 +34,25 @@ function App() {
   const [selectedPC,
   setSelectedPC] =
   useState(null);
+
+  // ==========================
+  // AUTH CHECK
+  // ==========================
+
+  useEffect(() => {
+
+    const token =
+    localStorage.getItem(
+      "token"
+    );
+
+    if (!token) {
+
+      navigate("/login");
+
+    }
+
+  }, []);
 
   // ==========================
   // FETCH PCS
@@ -162,52 +193,67 @@ function App() {
   ).length;
 
   // ==========================
-  // SHUTDOWN ALL PCs
+  // SHUTDOWN ALL PCS
   // ==========================
 
- const shutdownAllPCs =
-async () => {
+  const shutdownAllPCs =
+  async () => {
 
-  const confirmShutdown =
-  window.confirm(
+    const confirmShutdown =
+    window.confirm(
 
-    "Are you sure you want to shutdown ALL PCs ?"
-
-  );
-
-  if (!confirmShutdown) return;
-
-  try {
-
-    await axios.post(
-
-      "https://smart-lab-monitoring.onrender.com/api/shutdown-all"
+      "Are you sure you want to shutdown ALL PCs ?"
 
     );
 
-    alert(
+    if (!confirmShutdown) return;
 
-      "Shutdown command sent to all PCs 🚀"
+    try {
 
+      await axios.post(
+
+        "https://smart-lab-monitoring.onrender.com/api/shutdown-all"
+
+      );
+
+      alert(
+
+        "Shutdown command sent to all PCs 🚀"
+
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(
+        error
+      );
+
+      alert(
+
+        "Failed to shutdown all PCs ❌"
+
+      );
+
+    }
+
+  };
+
+  // ==========================
+  // LOGOUT
+  // ==========================
+
+  const logout =
+  () => {
+
+    localStorage.removeItem(
+      "token"
     );
 
-  }
+    navigate("/login");
 
-  catch (error) {
-
-    console.log(
-      error
-    );
-
-    alert(
-
-      "Failed to shutdown all PCs ❌"
-
-    );
-
-  }
-
-};
+  };
 
   return (
 
@@ -224,7 +270,7 @@ async () => {
       ">
 
         {/* ==========================
-            TOP HEADER
+            HEADER
         ========================== */}
 
         <div className="
@@ -236,28 +282,60 @@ async () => {
 
           <Header />
 
-          <button
+          <div className="
+          flex
+          gap-4
+          ">
 
-            onClick={
-              shutdownAllPCs
-            }
+            {/* SHUTDOWN ALL */}
 
-            className="
-            bg-red-600
-            hover:bg-red-700
-            px-6
-            py-3
-            rounded-2xl
-            font-bold
-            shadow-lg
-            transition-all
-            "
+            <button
 
-          >
+              onClick={
+                shutdownAllPCs
+              }
 
-            Shutdown All PCs
+              className="
+              bg-red-600
+              hover:bg-red-700
+              px-6
+              py-3
+              rounded-2xl
+              font-bold
+              shadow-lg
+              transition-all
+              "
 
-          </button>
+            >
+
+              Shutdown All PCs
+
+            </button>
+
+            {/* LOGOUT */}
+
+            <button
+
+              onClick={logout}
+
+              className="
+              bg-slate-700
+              hover:bg-slate-800
+              px-6
+              py-3
+              rounded-2xl
+              font-bold
+              shadow-lg
+              transition-all
+              "
+
+            >
+
+              Logout
+
+            </button>
+
+          </div>
 
         </div>
 
@@ -342,7 +420,7 @@ async () => {
         </div>
 
         {/* ==========================
-            SELECTED PC DETAILS
+            PC DETAILS
         ========================== */}
 
         <PcDetails

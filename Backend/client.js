@@ -151,7 +151,7 @@ async function sendHeartbeat() {
     catch {
 
       console.log(
-        "Active App Error"
+        "⚠ Active App Error"
       );
 
     }
@@ -206,7 +206,10 @@ async function sendHeartbeat() {
     );
 
     console.log(
+
+      error.response?.data ||
       error.message
+
     );
 
   }
@@ -412,5 +415,31 @@ process.on(
     process.exit();
 
   }
+
+);
+
+// ==========================
+// START MESSAGE
+// ==========================
+
+console.log(
+
+  "🚀 Smart Lab Agent Running"
+
+);
+
+console.log(
+
+  "💻 PC Name:",
+
+  os.hostname()
+
+);
+
+console.log(
+
+  "🌐 Connected To:",
+
+  SERVER
 
 );
