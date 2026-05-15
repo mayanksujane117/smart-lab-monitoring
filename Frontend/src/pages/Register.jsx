@@ -44,7 +44,7 @@ function Register() {
       );
 
       alert(
-        "Registered Successfully 🚀"
+        "Registered Successfully "
       );
 
       window.location.href =

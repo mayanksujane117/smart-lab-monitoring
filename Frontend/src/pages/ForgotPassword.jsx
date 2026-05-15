@@ -38,7 +38,7 @@ function ForgotPassword() {
       );
 
       alert(
-        "Password Updated 🚀"
+        "Password Updated "
       );
 
       window.location.href =

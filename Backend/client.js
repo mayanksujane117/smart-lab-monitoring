@@ -424,7 +424,7 @@ process.on(
 
 console.log(
 
-  "🚀 Smart Lab Agent Running"
+  " Smart Lab Agent Running"
 
 );
 
@@ -438,7 +438,7 @@ console.log(
 
 console.log(
 
-  "🌐 Connected To:",
+  " Connected To:",
 
   SERVER
 

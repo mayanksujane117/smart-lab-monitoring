@@ -218,7 +218,7 @@ function App() {
 
       alert(
 
-        "Shutdown command sent to all PCs 🚀"
+        "Shutdown command sent to all PCs "
 
       );
 

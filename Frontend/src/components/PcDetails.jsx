@@ -84,7 +84,7 @@ function PcDetails({
       );
 
       alert(
-        "Shutdown command sent 🚀"
+        "Shutdown command sent "
       );
 
     }
@@ -126,7 +126,7 @@ function PcDetails({
       );
 
       alert(
-        "PC Deleted 🚀"
+        "PC Deleted "
       );
 
       window.location.reload();
