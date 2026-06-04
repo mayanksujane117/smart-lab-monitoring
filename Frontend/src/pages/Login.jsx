@@ -30,6 +30,8 @@ function Login() {
 
         );
 
+      // Save Data
+
       localStorage.setItem(
         "token",
         response.data.token
@@ -45,37 +47,44 @@ function Login() {
         response.data.user.username
       );
 
+      // Check Selected Role
+
       if (
         response.data.user.role !== role
       ) {
 
         alert(
-          "Selected role does not match account role"
+          `This account is ${response.data.user.role}. Please select correct role.`
         );
 
         return;
 
       }
 
+      // Redirect
+
       if (
-  response.data.user.role === "Admin"
-) {
+        response.data.user.role ===
+        "Admin"
+      ) {
 
-  window.location.href =
-  "/admin";
+        window.location.href =
+          "/admin";
 
-}
+      }
 
-else {
+      else {
 
-  window.location.href =
-  "/assistant";
+        window.location.href =
+          "/assistant";
 
-}
+      }
 
     }
 
     catch (error) {
+
+      console.log(error);
 
       alert(
         error?.response?.data?.message ||
@@ -143,7 +152,9 @@ else {
           block
           mb-2
         ">
+
           Login As
+
         </label>
 
         <select
@@ -151,7 +162,9 @@ else {
           value={role}
 
           onChange={(e) =>
-            setRole(e.target.value)
+            setRole(
+              e.target.value
+            )
           }
 
           className="
@@ -166,11 +179,11 @@ else {
 
         >
 
-          <option>
+          <option value="Admin">
             Admin
           </option>
 
-          <option>
+          <option value="Lab Assistant">
             Lab Assistant
           </option>
 
@@ -187,7 +200,9 @@ else {
           value={username}
 
           onChange={(e) =>
-            setUsername(e.target.value)
+            setUsername(
+              e.target.value
+            )
           }
 
           className="
@@ -213,7 +228,9 @@ else {
           value={password}
 
           onChange={(e) =>
-            setPassword(e.target.value)
+            setPassword(
+              e.target.value
+            )
           }
 
           className="
@@ -229,6 +246,8 @@ else {
         />
 
         <button
+
+          type="submit"
 
           className="
             w-full

@@ -23,16 +23,6 @@ function AppRoutes() {
       />
 
       <Route
-        path="/admin"
-        element={<AdminDashboard />}
-      />
-
-      <Route
-        path="/assistant"
-        element={<AssistantDashboard />}
-      />
-
-      <Route
         path="/login"
         element={<Login />}
       />
@@ -46,11 +36,21 @@ function AppRoutes() {
         path="/forgot-password"
         element={<ForgotPassword />}
       />
-      
+
+      <Route
+        path="/admin"
+        element={<AdminDashboard />}
+      />
+
+      <Route
+        path="/assistant"
+        element={<AssistantDashboard />}
+      />
+
       <Route
         path="/users"
         element={<Users />}
-        />
+      />
 
     </Routes>
 
