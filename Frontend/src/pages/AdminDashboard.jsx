@@ -304,12 +304,14 @@ function AminDashboard() {
 
             </div>
 
-          </div>
-
           <div className="
             flex
-            gap-4
-          ">
+            flex-col
+            md:flex-row
+            gap-4   
+            w-full  
+            md:w-auto
+        ">
 
             {role === "Admin" && (
 
@@ -408,14 +410,7 @@ function AminDashboard() {
             value={offlinePCs}
           />
 
-          {role === "Admin" && (
-
-            <StatCard
-              title="Role"
-              value="Admin"
-            />
-
-          )}
+          
 
         </div>
 
