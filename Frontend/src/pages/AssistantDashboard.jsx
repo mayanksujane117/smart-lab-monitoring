@@ -305,15 +305,16 @@ function AssistantDashboard() {
 
             </div>
 
-          <div className="
-flex
-flex-col
-md:flex-row
-gap-4
-w-full
-md:w-auto
-">
+          </div>
 
+          <div className="
+            flex
+            flex-col
+            md:flex-row
+            gap-4
+            w-full
+            md:w-auto
+          ">
             {role === "Admin" && (
 
               <button

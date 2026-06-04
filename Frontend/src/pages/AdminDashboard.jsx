@@ -304,14 +304,17 @@ function AminDashboard() {
 
             </div>
 
+          </div>
+
           <div className="
             flex
             flex-col
             md:flex-row
-            gap-4   
-            w-full  
+            gap-4
+            w-full
             md:w-auto
-        ">
+
+          ">
 
             {role === "Admin" && (
 
@@ -411,7 +414,6 @@ function AminDashboard() {
           />
 
           
-
         </div>
 
         {/* TABLE + ANALYTICS */}
