@@ -63,7 +63,7 @@ mongoose
 // ==========================
 
 io.on("connection", (socket) => {
-  console.log("⚡ Client Connected");
+  console.log("Client Connected");
 });
 
 // ==========================
@@ -109,10 +109,11 @@ app.post("/api/register", async (req, res) => {
     // CREATE USER
 
     const user =
-      await User.create({
-        username,
-        password: hashedPassword,
-      });
+  await User.create({
+    username,
+    password: hashedPassword,
+    role: "Lab Assistant",
+  });
 
     res.json({
       success: true,
@@ -184,10 +185,17 @@ app.post("/api/login", async (req, res) => {
       }
     );
 
-    res.json({
-      success: true,
-      token,
-    });
+   res.json({
+  success: true,
+
+  token,
+
+  user: {
+    id: user._id,
+    username: user.username,
+    role: user.role,
+  },
+});
 
   } catch (error) {
 
@@ -631,13 +639,96 @@ setInterval(async () => {
 }, 5000);
 
 // ==========================
+// GET USERS
+// ==========================
+
+app.get("/api/users", async (req, res) => {
+  try {
+
+    const users =
+      await User.find()
+      .select("-password");
+
+    res.json(users);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+    });
+
+  }
+});
+
+// ==========================
+// DELETE USER
+// ==========================
+
+app.delete("/api/users/:id", async (req, res) => {
+  try {
+
+    await User.findByIdAndDelete(
+      req.params.id
+    );
+
+    res.json({
+      success: true,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+    });
+
+  }
+});
+
+// ==========================
+// CHANGE ROLE
+// ==========================
+
+app.put("/api/users/:id/role", async (req, res) => {
+  try {
+
+    const { role } = req.body;
+
+    const updatedUser =
+      await User.findByIdAndUpdate(
+
+        req.params.id,
+
+        { role },
+
+        { new: true }
+
+      );
+
+    res.json(updatedUser);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+    });
+
+  }
+});
+
+// ==========================
 // ROOT ROUTE
 // ==========================
 
 app.get("/", (req, res) => {
 
   res.send(
-    "🚀 Smart Lab Monitoring Backend Running"
+    "Smart Lab Monitoring Backend Running"
   );
 
 });
@@ -652,7 +743,7 @@ const PORT =
 server.listen(PORT, () => {
 
   console.log(
-    `🚀 Server Running On Port ${PORT}`
+    ` Server Running On Port ${PORT}`
   );
 
 });

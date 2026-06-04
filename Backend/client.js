@@ -194,7 +194,7 @@ async function sendHeartbeat() {
     );
 
     console.log(
-      "💓 Heartbeat Sent"
+      "Heartbeat Sent"
     );
 
   }
@@ -202,7 +202,7 @@ async function sendHeartbeat() {
   catch (error) {
 
     console.log(
-      "❌ Heartbeat Error"
+      "Heartbeat Error"
     );
 
     console.log(
@@ -217,7 +217,7 @@ async function sendHeartbeat() {
 }
 
 // ==========================
-// SEND EVERY 5 SEC
+// SEND EVERY 50 SEC
 // ==========================
 
 sendHeartbeat();
@@ -226,7 +226,7 @@ setInterval(
 
   sendHeartbeat,
 
-  5000
+  50000
 
 );
 
@@ -332,7 +332,7 @@ socket.on(
     ) {
 
       console.log(
-        "🔒 Lock Command"
+        "Lock Command"
       );
 
       exec(
@@ -365,7 +365,7 @@ socket.on(
     ) {
 
       console.log(
-        "😴 Sleep Command"
+        "Sleep Command"
       );
 
       exec(
