@@ -15,100 +15,7 @@ const PC = require("./models/PC");
 const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
 
-// ==========================
-// ADD USER (ADMIN)
-// ==========================
 
-app.post("/api/add-user", async (req, res) => {
-
-  try {
-
-    const {
-      username,
-      password,
-    } = req.body;
-
-    if (!username || !password) {
-
-      return res.status(400).json({
-        success: false,
-        message: "Username and Password required",
-      });
-
-    }
-
-    const existingUser =
-      await User.findOne({
-        username,
-      });
-
-    if (existingUser) {
-
-      return res.status(400).json({
-        success: false,
-        message: "User already exists",
-      });
-
-    }
-
-    const hashedPassword =
-      await bcrypt.hash(
-        password,
-        10
-      );
-
-    const user =
-      await User.create({
-
-        username,
-
-        password:
-          hashedPassword,
-
-        role:
-          "Lab Assistant",
-
-      });
-
-    res.status(201).json({
-
-      success: true,
-
-      message:
-        "Lab Assistant Created",
-
-      user: {
-
-        id: user._id,
-
-        username:
-          user.username,
-
-        role:
-          user.role,
-
-      },
-
-    });
-
-  }
-
-  catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-
-      success: false,
-
-      message:
-        "Server Error",
-
-    });
-
-  }
-
-});
 
 // ==========================
 // APP
@@ -224,6 +131,101 @@ app.post("/api/register", async (req, res) => {
     });
 
   }
+});
+
+// ==========================
+// ADD USER (ADMIN)
+// ==========================
+
+app.post("/api/add-user", async (req, res) => {
+
+  try {
+
+    const {
+      username,
+      password,
+    } = req.body;
+
+    if (!username || !password) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Username and Password required",
+      });
+
+    }
+
+    const existingUser =
+      await User.findOne({
+        username,
+      });
+
+    if (existingUser) {
+
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
+      });
+
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(
+        password,
+        10
+      );
+
+    const user =
+      await User.create({
+
+        username,
+
+        password:
+          hashedPassword,
+
+        role:
+          "Lab Assistant",
+
+      });
+
+    res.status(201).json({
+
+      success: true,
+
+      message:
+        "Lab Assistant Created",
+
+      user: {
+
+        id: user._id,
+
+        username:
+          user.username,
+
+        role:
+          user.role,
+
+      },
+
+    });
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+
+      success: false,
+
+      message:
+        "Server Error",
+
+    });
+
+  }
+
 });
 
 // ==========================
