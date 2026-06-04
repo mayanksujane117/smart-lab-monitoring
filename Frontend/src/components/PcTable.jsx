@@ -80,7 +80,7 @@ function PcTable({
               </td>
 
               <td>
-                {pc.internetSpeed}
+                {pc.internetSpeed} mbps
               </td>
 
               <td>
