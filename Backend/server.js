@@ -16,6 +16,72 @@ const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
 
 // ==========================
+// user created by admin
+// ==========================
+
+app.post("/api/add-user", async (req, res) => {
+
+  try {
+
+    const {
+      username,
+      password,
+    } = req.body;
+
+    const existingUser =
+      await User.findOne({
+        username,
+      });
+
+    if (existingUser) {
+
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
+      });
+
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(
+        password,
+        10
+      );
+
+    const user =
+      await User.create({
+
+        username,
+
+        password:
+        hashedPassword,
+
+        role:
+        "Lab Assistant",
+
+      });
+
+    res.json({
+      success: true,
+      user,
+    });
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+
+  }
+
+});
+
+// ==========================
 // APP
 // ==========================
 

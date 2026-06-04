@@ -1,79 +1,430 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 function Users() {
 
-  const [username, setUsername] =
+  const [users, setUsers] =
+    useState([]);
+
+  const [newUsername,
+    setNewUsername] =
     useState("");
 
-  const [password, setPassword] =
+  const [newPassword,
+    setNewPassword] =
     useState("");
 
-  const [role, setRole] =
-    useState("Lab Assistant");
+  // ==========================
+  // FETCH USERS
+  // ==========================
 
-  const createUser = () => {
+  const fetchUsers =
+    async () => {
 
-    console.log({
-      username,
-      password,
-      role,
-    });
+      try {
 
-  };
+        const response =
+          await axios.get(
+            "https://smart-lab-monitoring.onrender.com/api/users"
+          );
+
+        setUsers(
+          response.data
+        );
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+      }
+
+    };
+
+  useEffect(() => {
+
+    fetchUsers();
+
+  }, []);
+
+  // ==========================
+  // ADD USER
+  // ==========================
+
+  const addUser =
+    async () => {
+
+      if (
+        !newUsername ||
+        !newPassword
+      ) {
+
+        alert(
+          "Fill all fields"
+        );
+
+        return;
+
+      }
+
+      try {
+
+        await axios.post(
+
+          "https://smart-lab-monitoring.onrender.com/api/add-user",
+
+          {
+
+            username:
+              newUsername,
+
+            password:
+              newPassword,
+
+          }
+
+        );
+
+        setNewUsername("");
+        setNewPassword("");
+
+        fetchUsers();
+
+        alert(
+          "Lab Assistant Added Successfully"
+        );
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        alert(
+          error?.response?.data?.message ||
+          "Failed To Add User"
+        );
+
+      }
+
+    };
+
+  // ==========================
+  // DELETE USER
+  // ==========================
+
+  const deleteUser =
+    async (id) => {
+
+      const confirmDelete =
+        window.confirm(
+          "Delete this user?"
+        );
+
+      if (!confirmDelete)
+        return;
+
+      try {
+
+        await axios.delete(
+
+          `https://smart-lab-monitoring.onrender.com/api/users/${id}`
+
+        );
+
+        fetchUsers();
+
+        alert(
+          "User Deleted"
+        );
+
+      }
+
+      catch (error) {
+
+        console.log(error);
+
+        alert(
+          "Delete Failed"
+        );
+
+      }
+
+    };
 
   return (
-    <div className="p-6">
 
-      <h1 className="text-3xl font-bold mb-6">
-        User Management
-      </h1>
+    <div className="
+      min-h-screen
+      bg-slate-950
+      text-white
+      p-6
+    ">
 
-      <div className="bg-slate-900 p-6 rounded-xl">
+      <div className="
+        max-w-6xl
+        mx-auto
+      ">
 
-        <input
-          placeholder="Username"
-          className="w-full p-3 mb-4 rounded bg-slate-800"
-          onChange={(e) =>
-            setUsername(e.target.value)
-          }
-        />
+        {/* HEADER */}
 
-        <input
-          placeholder="Password"
-          type="password"
-          className="w-full p-3 mb-4 rounded bg-slate-800"
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-        />
+        <div className="
+          flex
+          justify-between
+          items-center
+          mb-8
+        ">
 
-        <select
-          className="w-full p-3 mb-4 rounded bg-slate-800"
-          onChange={(e) =>
-            setRole(e.target.value)
-          }
-        >
-          <option>
-            Lab Assistant
-          </option>
+          <h1 className="
+            text-4xl
+            font-bold
+          ">
 
-          <option>
-            Admin
-          </option>
+            User Management
 
-        </select>
+          </h1>
 
-        <button
-          onClick={createUser}
-          className="bg-blue-600 px-6 py-3 rounded"
-        >
-          Create User
-        </button>
+          <button
+
+            onClick={() =>
+              window.location.href =
+              "/admin"
+            }
+
+            className="
+              bg-slate-700
+              hover:bg-slate-800
+              px-5
+              py-3
+              rounded-xl
+            "
+
+          >
+
+            Back
+
+          </button>
+
+        </div>
+
+        {/* ADD USER */}
+
+        <div className="
+          bg-slate-900
+          p-6
+          rounded-2xl
+          mb-8
+        ">
+
+          <h2 className="
+            text-2xl
+            font-bold
+            mb-5
+          ">
+
+            Add Lab Assistant
+
+          </h2>
+
+          <div className="
+            grid
+            md:grid-cols-3
+            gap-4
+          ">
+
+            <input
+
+              type="text"
+
+              placeholder="Username"
+
+              value={newUsername}
+
+              onChange={(e) =>
+                setNewUsername(
+                  e.target.value
+                )
+              }
+
+              className="
+                bg-slate-800
+                p-4
+                rounded-xl
+                outline-none
+              "
+
+            />
+
+            <input
+
+              type="password"
+
+              placeholder="Password"
+
+              value={newPassword}
+
+              onChange={(e) =>
+                setNewPassword(
+                  e.target.value
+                )
+              }
+
+              className="
+                bg-slate-800
+                p-4
+                rounded-xl
+                outline-none
+              "
+
+            />
+
+            <button
+
+              onClick={addUser}
+
+              className="
+                bg-green-600
+                hover:bg-green-700
+                rounded-xl
+                font-bold
+              "
+
+            >
+
+              Add User
+
+            </button>
+
+          </div>
+
+        </div>
+
+        {/* USERS TABLE */}
+
+        <div className="
+          bg-slate-900
+          rounded-2xl
+          p-6
+        ">
+
+          <h2 className="
+            text-2xl
+            font-bold
+            mb-6
+          ">
+
+            Lab Assistants
+
+          </h2>
+
+          <table className="
+            w-full
+            text-left
+          ">
+
+            <thead>
+
+              <tr className="
+                border-b
+                border-slate-700
+              ">
+
+                <th className="
+                  pb-4
+                ">
+                  Username
+                </th>
+
+                <th className="
+                  pb-4
+                ">
+                  Role
+                </th>
+
+                <th className="
+                  pb-4
+                ">
+                  Action
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {users.map(
+                (user) => (
+
+                  <tr
+
+                    key={user._id}
+
+                    className="
+                      border-b
+                      border-slate-800
+                    "
+
+                  >
+
+                    <td className="
+                      py-4
+                    ">
+
+                      {user.username}
+
+                    </td>
+
+                    <td>
+
+                      {user.role}
+
+                    </td>
+
+                    <td>
+
+                      <button
+
+                        onClick={() =>
+                          deleteUser(
+                            user._id
+                          )
+                        }
+
+                        className="
+                          bg-red-600
+                          hover:bg-red-700
+                          px-4
+                          py-2
+                          rounded-lg
+                        "
+
+                      >
+
+                        Delete
+
+                      </button>
+
+                    </td>
+
+                  </tr>
+
+                )
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
 
       </div>
 
     </div>
+
   );
+
 }
 
 export default Users;

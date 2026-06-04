@@ -1,12 +1,15 @@
 import {
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 
-import Dashboard from "../pages/Dashboard";
+import AdminDashboard from "../pages/AdminDashboard";
+import AssistantDashboard from "../pages/AssistantDashboard";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+import Users from "../pages/Users";
 
 function AppRoutes() {
 
@@ -16,7 +19,17 @@ function AppRoutes() {
 
       <Route
         path="/"
-        element={<Dashboard />}
+        element={<Navigate to="/login" />}
+      />
+
+      <Route
+        path="/admin"
+        element={<AdminDashboard />}
+      />
+
+      <Route
+        path="/assistant"
+        element={<AssistantDashboard />}
       />
 
       <Route
@@ -33,6 +46,11 @@ function AppRoutes() {
         path="/forgot-password"
         element={<ForgotPassword />}
       />
+      
+      <Route
+        path="/users"
+        element={<Users />}
+        />
 
     </Routes>
 
