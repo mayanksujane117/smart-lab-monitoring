@@ -16,7 +16,7 @@ const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
 
 // ==========================
-// user created by admin
+// ADD USER (ADMIN)
 // ==========================
 
 app.post("/api/add-user", async (req, res) => {
@@ -27,6 +27,15 @@ app.post("/api/add-user", async (req, res) => {
       username,
       password,
     } = req.body;
+
+    if (!username || !password) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Username and Password required",
+      });
+
+    }
 
     const existingUser =
       await User.findOne({
@@ -54,16 +63,32 @@ app.post("/api/add-user", async (req, res) => {
         username,
 
         password:
-        hashedPassword,
+          hashedPassword,
 
         role:
-        "Lab Assistant",
+          "Lab Assistant",
 
       });
 
-    res.json({
+    res.status(201).json({
+
       success: true,
-      user,
+
+      message:
+        "Lab Assistant Created",
+
+      user: {
+
+        id: user._id,
+
+        username:
+          user.username,
+
+        role:
+          user.role,
+
+      },
+
     });
 
   }
@@ -73,8 +98,12 @@ app.post("/api/add-user", async (req, res) => {
     console.log(error);
 
     res.status(500).json({
+
       success: false,
-      message: error.message,
+
+      message:
+        "Server Error",
+
     });
 
   }
