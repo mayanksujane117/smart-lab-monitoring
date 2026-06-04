@@ -94,53 +94,54 @@ function AssistantDashboard() {
       io(
         "https://smart-lab-monitoring.onrender.com"
       );
+  socket.on(
+  "pc-update",
+  (updatedPC) => {
 
-    socket.on(
-      "pc-update",
-      (updatedPC) => {
+    setPcs((prev) => {
 
-        setPcs((prev) => {
+      const exists =
+        prev.find(
+          (pc) =>
+            pc.pcName === updatedPC.pcName
+        );
 
-          const exists =
-            prev.find(
+      if (exists) {
 
-              (pc) =>
-
-                pc.pcName ===
-                updatedPC.pcName
-
-            );
-
-          if (exists) {
-
-            return prev.map(
-
-              (pc) =>
-
-                pc.pcName ===
-                updatedPC.pcName
-
-                  ? updatedPC
-
-                  : pc
-
-            );
-
-          }
-
-          return [
-
-            ...prev,
-
-            updatedPC,
-
-          ];
-
-        });
+        return prev.map(
+          (pc) =>
+            pc.pcName === updatedPC.pcName
+              ? updatedPC
+              : pc
+        );
 
       }
 
-    );
+      return [
+        ...prev,
+        updatedPC,
+      ];
+
+    });
+
+    // 👇 ADD THIS
+    setSelectedPC((prev) => {
+
+      if (
+        prev &&
+        prev.pcName === updatedPC.pcName
+      ) {
+
+        return updatedPC;
+
+      }
+
+      return prev;
+
+    });
+
+  }
+);
 
     return () => {
 
