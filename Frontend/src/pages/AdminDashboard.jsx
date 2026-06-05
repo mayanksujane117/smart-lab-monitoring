@@ -29,6 +29,44 @@ function AdminDashboard() {
       console.log(error);
     }
   };
+  const shutdownAllPCs =
+async () => {
+
+  const confirmAction =
+    window.confirm(
+
+      "Shutdown ALL PCs?"
+
+    );
+
+  if (
+    !confirmAction
+  )
+    return;
+
+  try {
+
+    await axios.post(
+
+      "https://smart-lab-monitoring.onrender.com/api/shutdown-all"
+
+    );
+
+    alert(
+      "Command Sent"
+    );
+
+  }
+
+  catch {
+
+    alert(
+      "Failed"
+    );
+
+  }
+
+};
 
   useEffect(() => {
 
@@ -220,12 +258,32 @@ fetchLabs();
             onClick={() => setShowLabModal(true)}
             className="bg-cyan-600 hover:bg-cyan-700 px-6 py-3 rounded-2xl font-semibold"
           >
-            + Add Lab
+            Add Lab+
           </button>
+          <button
 
+  onClick={
+    shutdownAllPCs
+  }
+
+  className="
+  bg-red-600
+  hover:bg-red-700
+  px-6
+  py-3
+  rounded-2xl
+  font-semibold
+  
+  "
+
+>
+
+  ⏻ Shutdown All PCs
+
+</button>
           <button
             onClick={logout}
-            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold"
+            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold flex gap-3 ml-auto"
           >
             Logout
           </button>

@@ -40,108 +40,35 @@ function LabDetails() {
 
   useEffect(() => {
 
-    const fetchPCs =
-      async () => {
+    const fetchPCs = async () => {
 
-        try {
+      try {
 
-          const response =
-            await axios.get(
-              "https://smart-lab-monitoring.onrender.com/api/pcs"
-            );
+        const response = await axios.get(
+          "https://smart-lab-monitoring.onrender.com/api/pcs"
+        );
 
-          const filteredPCs =
-            response.data.filter(
+        const filteredPCs = response.data.filter(
+          (pc) => pc.lab === decodedLab
+        );
 
-              (pc) =>
-                pc.lab ===
-                decodedLab
+        setPcs(filteredPCs);
 
-            );
+      } catch (error) {
 
-          setPcs(
-            filteredPCs
-          );
+        console.log(error);
 
-          // LIVE UPDATE
-          if (selectedPC) {
+      }
 
-            const updatedPC =
-              filteredPCs.find(
-
-                (pc) =>
-                  pc.pcName ===
-                  selectedPC.pcName
-
-              );
-
-            if (updatedPC) {
-
-              setSelectedPC(
-                updatedPC
-              );
-
-            }
-
-          }
-
-        }
-
-        catch (error) {
-
-          console.log(
-            error
-          );
-
-        }
-
-      };
+    };
 
     fetchPCs();
 
-    const interval =
-      setInterval(
-        fetchPCs,
-        5000
-      );
+    const interval = setInterval(fetchPCs, 5000);
 
-    return () =>
-      clearInterval(
-        interval
-      );
+    return () => clearInterval(interval);
 
-  }, [
-    decodedLab,
-    selectedPC,
-  ]);
-
-  // ==========================
-  // EXTRA LIVE SYNC
-  // ==========================
-
-  useEffect(() => {
-
-    if (!selectedPC)
-      return;
-
-    const latestPC =
-      pcs.find(
-
-        (pc) =>
-          pc.pcName ===
-          selectedPC.pcName
-
-      );
-
-    if (latestPC) {
-
-      setSelectedPC(
-        latestPC
-      );
-
-    }
-
-  }, [pcs]);
+  }, [decodedLab]);
 
   // ==========================
   // STATS
@@ -177,6 +104,37 @@ function LabDetails() {
 
     ).length;
 
+  const shutdownLab = async () => {
+
+    const text = prompt(`Type SHUTDOWN to confirm shutdown of ${decodedLab}`);
+
+    if (text !== "SHUTDOWN") {
+
+      alert("Shutdown cancelled");
+
+      return;
+
+    }
+
+    try {
+
+      await axios.post(
+        "https://smart-lab-monitoring.onrender.com/api/shutdown-lab",
+        { lab: decodedLab }
+      );
+
+      alert("Shutdown command sent");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Failed to send command");
+
+    }
+
+  };
+
   return (
 
     <div className="
@@ -193,57 +151,91 @@ function LabDetails() {
 
         {/* HEADER */}
 
-        <div className="
-        flex
-        justify-between
-        items-center
-        mb-8
-        ">
+        {/* HEADER */}
 
-          <div>
+<div className="
+flex
+justify-between
+items-center
+mb-16
+">
 
-            <h1 className="
-            text-5xl
-            font-bold
-            ">
+  <div>
 
-              {decodedLab}
+    <h1 className="
+    text-5xl
+    font-bold
+    ">
 
-            </h1>
+      {decodedLab}
 
-            <p className="
-            text-slate-400
-            mt-2
-            ">
+    </h1>
 
-              Real-Time Lab Monitoring
+    <p className="
+    text-slate-400
+    mt-2
+    ">
 
-            </p>
+      Real-Time Lab Monitoring
 
-          </div>
+    </p>
 
-          <button
+  </div>
 
-            onClick={() =>
-              navigate(-1)
-            }
+  <div className="
+  flex
+  items-center
+  justify-end
+  gap-3
+  ml-auto
+  ">
 
-            className="
-            bg-slate-800
-            hover:bg-slate-700
-            px-6
-            py-3
-            rounded-2xl
-            font-semibold
-            "
+    <button
 
-          >
+      onClick={shutdownLab}
 
-            ← Back
+      className="
+      bg-red-600
+      hover:bg-red-700
+      px-6
+      py-3
+      rounded-2xl
+      font-semibold
+      shadow-lg
+      transition-all
+      "
 
-          </button>
+    >
 
-        </div>
+      ⏻ Shutdown Lab PCs
+
+    </button>
+
+    <button
+
+      onClick={() =>
+        navigate(-1)
+      }
+
+      className="
+      bg-slate-800
+      hover:bg-slate-700
+      px-6
+      py-3
+      rounded-2xl
+      font-semibold
+      transition-all
+      "
+
+    >
+
+      ← Back
+
+    </button>
+
+  </div>
+
+</div>
 
         {/* CARDS */}
 

@@ -574,6 +574,37 @@ app.post(
 );
 
 // ==========================
+// SHUTDOWN LAB PCs
+// ==========================
+
+app.post(
+
+  "/api/shutdown-lab",
+
+  (req, res) => {
+
+    const { lab } =
+      req.body;
+
+    io.emit(
+
+      "shutdown-lab",
+
+      lab
+
+    );
+
+    res.json({
+
+      success: true,
+
+    });
+
+  }
+
+);
+
+// ==========================
 // RESTART PC
 // ==========================
 

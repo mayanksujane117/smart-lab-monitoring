@@ -1,6 +1,7 @@
-# TODO - Fix App.jsx
+# TODO
 
-- [ ] Analyze `Frontend/src/App.jsx` and identify missing imports/variables.
-- [ ] Update `Frontend/src/App.jsx` only: add correct imports, define `totalPCs/onlinePCs/offlinePCs`, ensure proper `App` component structure + default export.
-- [ ] Verify build by running frontend dev/build.
+- [ ] Fix Frontend/src/pages/LabDetails.jsx compile errors (shutdownLab function currently truncated/uses undefined variables).
+- [ ] Ensure shutdownLab: prompt for SHUTDOWN and POST to `/api/shutdown-lab` with `{ lab: decodedLab }`.
+- [ ] Remove unused/incorrect code blocks so JSX renders correctly.
+- [ ] Run frontend lint/build (or npm test) to confirm no syntax errors.
 
