@@ -46,6 +46,18 @@ function AdminDashboard() {
   fetchPCs();
   fetchLabs();
 
+  const interval =
+    setInterval(() => {
+
+      fetchPCs();
+
+    }, 3000);
+
+  return () =>
+    clearInterval(
+      interval
+    );
+
 }, []);
 
   const fetchLabs = async () => {
