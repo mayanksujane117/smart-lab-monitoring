@@ -10,7 +10,7 @@ function Login() {
     useState("");
 
   const [role, setRole] =
-    useState("Lab Assistant");
+    useState("Lab In-charge");
 
   const handleLogin = async (e) => {
 
@@ -183,8 +183,8 @@ function Login() {
             Admin
           </option>
 
-          <option value="Lab Assistant">
-            Lab Assistant
+          <option value="Lab In-charge">
+            Lab In-charge
           </option>
 
         </select>
