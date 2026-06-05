@@ -202,18 +202,20 @@ fetchLabs();
             User Management
           </button>
 
-          <button
-            onClick={logout}
-            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold"
-          >
-            Logout
-          </button>
+          
 
           <button
             onClick={() => setShowLabModal(true)}
             className="bg-cyan-600 hover:bg-cyan-700 px-6 py-3 rounded-2xl font-semibold"
           >
             + Add Lab
+          </button>
+
+          <button
+            onClick={logout}
+            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold"
+          >
+            Logout
           </button>
         </div>
 
