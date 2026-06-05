@@ -106,9 +106,9 @@ function LabDetails() {
 
   const shutdownLab = async () => {
 
-    const text = prompt(`Type SHUTDOWN to confirm shutdown of ${decodedLab}`);
+    const text = prompt(`Type Piemr to confirm shutdown of ${decodedLab}`);
 
-    if (text !== "SHUTDOWN") {
+    if (text !== "Piemr") {
 
       alert("Shutdown cancelled");
 
