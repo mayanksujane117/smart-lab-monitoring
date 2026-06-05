@@ -31,16 +31,43 @@ function AdminDashboard() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
 
-    if (!token) {
-      navigate("/login");
-      return;
-    }
+  const token =
+    localStorage.getItem("token");
 
-    fetchPCs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  if (!token) {
+
+    navigate("/login");
+
+    return;
+
+  }
+
+  fetchPCs();
+  fetchLabs();
+
+}, []);
+
+  const fetchLabs = async () => {
+
+  try {
+
+    const response =
+      await axios.get(
+        "https://smart-lab-monitoring.onrender.com/api/labs"
+      );
+
+    setLabs(
+      response.data
+    );
+
+  } catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
   const addLab = async () => {
     try {
@@ -50,7 +77,11 @@ function AdminDashboard() {
       );
 
       alert("Lab Added");
-      window.location.reload();
+
+setLabName("");
+setShowLabModal(false);
+
+fetchLabs();
     } catch (error) {
 
   console.log(error);
@@ -209,15 +240,22 @@ function AdminDashboard() {
         <h2 className="text-4xl font-bold mb-8">Labs Overview</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {labs.map((lab) => {
-            const stats = getLabStats(lab);
+         {labs.map((lab) => {
+            const stats = getLabStats(lab.name
+          );
+
             return (
               <div
-                key={lab}
-                onClick={() => navigate(`/lab/${lab}`)}
+                onClick={() =>
+                navigate(
+                `/lab/${encodeURIComponent(
+              lab.name
+    )}`
+  )
+}
                 className="cursor-pointer rounded-3xl border border-slate-800 bg-[#0B1220] p-8 hover:border-cyan-500 hover:scale-105 transition-all duration-300"
               >
-                <h2 className="text-3xl font-bold mb-8">{lab}</h2>
+                <h2 className="text-3xl font-bold mb-8">{lab.name}</h2>
                  {lab.name !== "Unassigned" && (
 
 <button
@@ -243,6 +281,7 @@ function AdminDashboard() {
   "
 
 >
+
 
   Delete Lab
 
