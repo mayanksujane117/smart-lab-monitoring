@@ -10,6 +10,7 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
 import Users from "../pages/Users";
+import LabDetails from "../pages/LabDetails";
 
 function AppRoutes() {
 
@@ -50,6 +51,11 @@ function AppRoutes() {
       <Route
         path="/users"
         element={<Users />}
+      />
+
+      <Route
+        path="/lab/:labName"
+        element={<LabDetails />}
       />
 
     </Routes>

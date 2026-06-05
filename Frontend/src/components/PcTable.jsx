@@ -1,5 +1,3 @@
-// PcTable.jsx
-
 function PcTable({
   pcs,
   setSelectedPC,
@@ -7,116 +5,279 @@ function PcTable({
 
   return (
 
-    <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 overflow-auto">
+    <div className="
+    rounded-3xl
+    border
+    border-slate-800
+    bg-[#0B1220]
+    p-6
+    overflow-hidden
+    ">
 
-      <h2 className="text-2xl font-semibold mb-4">
+      <div className="
+      flex
+      justify-between
+      items-center
+      mb-6
+      ">
 
-        Live PCs
+        <div>
 
-      </h2>
+          <h2 className="
+          text-3xl
+          font-bold
+          text-white
+          ">
 
-      <table className="w-full text-left">
+            Live PCs
 
-        <thead>
+          </h2>
 
-          <tr className="text-slate-400 border-b border-slate-700">
+          <p className="
+          text-slate-400
+          mt-1
+          ">
 
-            <th className="pb-3">
-              PC
-            </th>
+            Real-time connected systems
 
-            <th className="pb-3">
-              IP
-            </th>
+          </p>
 
-            <th className="pb-3">
-              CPU
-            </th>
+        </div>
 
-            <th className="pb-3">
-              RAM
-            </th>
+        <div className="
+        bg-cyan-500/10
+        text-cyan-400
+        px-4
+        py-2
+        rounded-xl
+        font-medium
+        ">
 
-            <th className="pb-3">
-              Internet
-            </th>
+          {pcs.length} Systems
 
-            <th className="pb-3">
-              Status
-            </th>
+        </div>
 
-          </tr>
+      </div>
 
-        </thead>
+      <div className="
+      overflow-x-auto
+      ">
 
-        <tbody>
+        <table className="
+        w-full
+        ">
 
-          {pcs.map((pc, index) => (
+          <thead>
 
-            <tr
-              key={index}
+            <tr className="
+            border-b
+            border-slate-800
+            text-slate-400
+            ">
 
-              onClick={() =>
-                setSelectedPC(pc)
-              }
+              <th className="
+              py-4
+              text-left
+              ">
+                PC Name
+              </th>
 
-              className="border-b border-slate-800 cursor-pointer hover:bg-slate-800 transition"
-            >
+              <th className="
+              py-4
+              text-left
+              ">
+                Lab
+              </th>
 
-              <td className="py-4">
-                {pc.pcName}
-              </td>
+              <th className="
+              py-4
+              text-left
+              ">
+                IP Address
+              </th>
 
-              <td>
-                {pc.ipAddress}
-              </td>
+              <th className="
+              py-4
+              text-left
+              ">
+                CPU
+              </th>
 
-              <td>
-                {pc.cpuUsage}%
-              </td>
+              <th className="
+              py-4
+              text-left
+              ">
+                RAM
+              </th>
 
-              <td>
-                {pc.ramUsage}%
-              </td>
+              <th className="
+              py-4
+              text-left
+              ">
+                Network
+              </th>
 
-              <td>
-                {pc.internetSpeed} mbps
-              </td>
-
-              <td>
-
-                <span
-                  className={`
-                  px-3 py-1 rounded-full text-sm
-
-                  ${
-                    pc.status === "Online"
-                      ? "bg-green-500/20 text-green-400"
-
-                      : pc.status === "Sleeping"
-                      ? "bg-yellow-500/20 text-yellow-400"
-
-                      : "bg-red-500/20 text-red-400"
-                  }
-                  `}
-                >
-
-                  {pc.status}
-
-                </span>
-
-              </td>
+              <th className="
+              py-4
+              text-left
+              ">
+                Status
+              </th>
 
             </tr>
 
-          ))}
+          </thead>
 
-        </tbody>
+          <tbody>
 
-      </table>
+            {pcs.map((pc) => (
+
+              <tr
+
+                key={pc._id}
+
+                onClick={() =>
+                  setSelectedPC(pc)
+                }
+
+                className="
+                border-b
+                border-slate-900
+                hover:bg-slate-900/60
+                cursor-pointer
+                transition-all
+                duration-300
+                "
+
+              >
+
+                <td className="
+                py-5
+                font-semibold
+                text-white
+                ">
+                  {pc.pcName}
+                </td>
+
+                <td>
+                  {pc.lab}
+                </td>
+
+                <td className="
+                text-slate-400
+                ">
+                  {pc.ipAddress}
+                </td>
+
+                <td>
+
+                  <span className="
+                  text-cyan-400
+                  font-semibold
+                  ">
+
+                    {pc.cpuUsage}%
+
+                  </span>
+
+                </td>
+
+                <td>
+
+                  <span className="
+                  text-green-400
+                  font-semibold
+                  ">
+
+                    {pc.ramUsage}%
+
+                  </span>
+
+                </td>
+
+                <td>
+
+                  <span className="
+                  text-yellow-400
+                  font-semibold
+                  ">
+
+                    {pc.internetSpeed} Mbps
+
+                  </span>
+
+                </td>
+
+                <td>
+
+                  {pc.status ===
+                  "Online" ? (
+
+                    <span className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-green-500/10
+                    text-green-400
+                    ">
+
+                      <div className="
+                      w-2
+                      h-2
+                      rounded-full
+                      bg-green-400
+                      animate-pulse
+                      " />
+
+                      Online
+
+                    </span>
+
+                  ) : (
+
+                    <span className="
+                    inline-flex
+                    items-center
+                    gap-2
+                    px-3
+                    py-1
+                    rounded-full
+                    bg-red-500/10
+                    text-red-400
+                    ">
+
+                      <div className="
+                      w-2
+                      h-2
+                      rounded-full
+                      bg-red-400
+                      " />
+
+                      Offline
+
+                    </span>
+
+                  )}
+
+                </td>
+
+              </tr>
+
+            ))}
+
+          </tbody>
+
+        </table>
+
+      </div>
 
     </div>
+
   );
+
 }
 
 export default PcTable;

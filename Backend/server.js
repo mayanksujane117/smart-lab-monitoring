@@ -8,7 +8,7 @@ const cors = require("cors");
 const http = require("http");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const Lab = require("./models/Lab");
 const { Server } = require("socket.io");
 
 const PC = require("./models/PC");
@@ -54,7 +54,7 @@ app.use(
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("✅ MongoDB Connected");
+    console.log("MongoDB Connected");
   })
   .catch((err) => {
     console.log(err);
@@ -819,6 +819,80 @@ app.put("/api/users/:id/role", async (req, res) => {
 });
 
 // ==========================
+// ADD LAB
+// ==========================
+
+app.post("/api/labs", async (req, res) => {
+
+  try {
+
+    const { name } =
+      req.body;
+
+    const exists =
+      await Lab.findOne({
+        name,
+      });
+
+    if (exists) {
+
+      return res.status(400).json({
+        success: false,
+        message: "Lab already exists",
+      });
+
+    }
+
+    const lab =
+      await Lab.create({
+        name,
+      });
+
+    res.json({
+      success: true,
+      lab,
+    });
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+    });
+
+  }
+
+}); 
+// ==========================
+// GET LABS
+// ==========================
+
+app.get("/api/labs", async (req, res) => {
+
+  try {
+
+    const labs =
+      await Lab.find().sort({
+        createdAt: -1,
+      });
+
+    res.json(labs);
+
+  } catch (error) {
+
+    console.log(error);
+
+    res.status(500).json({
+      success: false,
+    });
+
+  }
+
+});
+
+
+// ==========================
 // ROOT ROUTE
 // ==========================
 
@@ -844,3 +918,4 @@ server.listen(PORT, () => {
   );
 
 });
+
