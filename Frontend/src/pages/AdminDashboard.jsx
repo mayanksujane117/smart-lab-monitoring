@@ -142,7 +142,7 @@ fetchLabs();
   const totalPCs = pcs.length;
   const onlinePCs = pcs.filter((pc) => pc.status === "Online").length;
   const offlinePCs = pcs.filter((pc) => pc.status === "Offline").length;
-  const sleepingPCs = pcs.filter((pc) => pc.status === "Sleeping").length;
+  
 
   const getLabStats = (lab) => {
     const labPCs = pcs.filter((pc) => pc.lab === lab);
@@ -235,7 +235,7 @@ fetchLabs();
           <StatCard title="Total PCs" value={totalPCs} icon="💻" />
           <StatCard title="Online" value={onlinePCs} icon="🟢" />
           <StatCard title="Offline" value={offlinePCs} icon="🔴" />
-          <StatCard title="Sleeping" value={sleepingPCs} icon="🌙" />
+          
         </div>
 
         {/* LABS */}
