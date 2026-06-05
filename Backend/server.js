@@ -383,6 +383,18 @@ app.post("/api/heartbeat", async (req, res) => {
       screenshot,
     } = req.body;
 
+    // CHECK LAB EXISTS
+
+const labExists =
+await Lab.findOne({
+  name: lab
+});
+
+const finalLab =
+labExists
+  ? lab
+  : "Unassigned";
+
     // UPDATE PC
 
     const updatedPC =
@@ -394,7 +406,7 @@ app.post("/api/heartbeat", async (req, res) => {
 
         {
           pcName,
-          lab,
+          lab: finalLab,
           ipAddress,
           status,
           cpuUsage,
