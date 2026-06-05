@@ -113,7 +113,7 @@ app.post("/api/register", async (req, res) => {
   await User.create({
     username,
     password: hashedPassword,
-    role: "Lab In-charge",
+    role: "Lab Assistant",
   });
 
     res.json({
@@ -183,7 +183,7 @@ app.post("/api/add-user", async (req, res) => {
           hashedPassword,
 
         role:
-          "Lab In-charge",
+          "Lab Assistant",
 
       });
 
@@ -192,7 +192,7 @@ app.post("/api/add-user", async (req, res) => {
       success: true,
 
       message:
-        "Lab In-charge Created",
+        "Lab Assistant Created",
 
       user: {
 

@@ -19,10 +19,10 @@ new mongoose.Schema({
     type: String,
     enum: [
       "Admin",
-      "Lab In-charge",
+      "Lab Assistant",
     ],
     default:
-      "Lab In-charge",
+      "Lab Assistant",
   },
 
 });

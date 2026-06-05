@@ -92,7 +92,7 @@ function Users() {
         fetchUsers();
 
         alert(
-          "Lab In-charge Added Successfully"
+          "Lab Assistant Added Successfully"
         );
 
       }
@@ -223,7 +223,7 @@ function Users() {
             mb-5
           ">
 
-            Add Lab In-charge
+            Add Lab Assistant
 
           </h2>
 
@@ -314,7 +314,7 @@ function Users() {
             mb-6
           ">
 
-            Lab In-charges
+            Lab Assistants
 
           </h2>
 
