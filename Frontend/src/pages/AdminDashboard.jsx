@@ -13,6 +13,7 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   const [pcs, setPcs] = useState([]);
+  const [labs, setLabs] = useState([]);
   const username = localStorage.getItem("username");
 
   const [showLabModal, setShowLabModal] = useState(false);
@@ -65,12 +66,47 @@ function AdminDashboard() {
 }
   };
 
+  const deleteLab =
+  async (id) => {
+
+    const confirmDelete =
+      window.confirm(
+        "Delete this lab?"
+      );
+
+    if (!confirmDelete)
+      return;
+
+    try {
+
+      await axios.delete(
+        `https://smart-lab-monitoring.onrender.com/api/labs/${id}`
+      );
+
+      fetchLabs();
+
+      alert(
+        "Lab Deleted"
+      );
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert(
+        "Delete Failed"
+      );
+
+    }
+
+  };
+
   const logout = () => {
     localStorage.clear();
     navigate("/login");
   };
 
-  const labs = [...new Set(pcs.map((pc) => pc.lab))];
+  
 
   const totalPCs = pcs.length;
   const onlinePCs = pcs.filter((pc) => pc.status === "Online").length;
@@ -182,7 +218,37 @@ function AdminDashboard() {
                 className="cursor-pointer rounded-3xl border border-slate-800 bg-[#0B1220] p-8 hover:border-cyan-500 hover:scale-105 transition-all duration-300"
               >
                 <h2 className="text-3xl font-bold mb-8">{lab}</h2>
+                 {lab.name !== "Unassigned" && (
 
+<button
+
+  onClick={(e) => {
+
+    e.stopPropagation();
+
+    deleteLab(
+      lab._id
+    );
+
+  }}
+
+  className="
+  bg-red-600
+  hover:bg-red-700
+  px-4
+  py-2
+  rounded-xl
+  text-sm
+  mb-4
+  "
+
+>
+
+  Delete Lab
+
+</button>
+
+)} 
                 <div className="space-y-3">
                   <div className="bg-green-500/10 text-green-400 p-4 rounded-xl">
                     Online: {stats.online}

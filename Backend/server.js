@@ -16,7 +16,6 @@ const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
 
 
-
 // ==========================
 // APP
 // ==========================
@@ -890,6 +889,77 @@ app.get("/api/labs", async (req, res) => {
   }
 
 });
+
+app.delete(
+  "/api/labs/:id",
+  async (req, res) => {
+
+    try {
+
+      const lab =
+        await Lab.findById(
+          req.params.id
+        );
+
+      if (!lab) {
+
+        return res.status(404).json({
+          success: false,
+          message: "Lab not found",
+        });
+
+      }
+
+      // MOVE PCS
+
+      await PC.updateMany(
+
+        {
+          lab: lab.name,
+        },
+
+        {
+          $set: {
+            lab: "Unassigned",
+          },
+        }
+
+      );
+
+      // DELETE LAB
+
+      await Lab.findByIdAndDelete(
+        req.params.id
+      );
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Lab deleted and PCs moved to Unassigned",
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          error.message,
+
+      });
+
+    }
+
+  }
+);
 
 
 // ==========================
