@@ -449,7 +449,11 @@ mb-16
 
         </div>
 
+        
+
         {/* PC DETAILS */}
+
+        
 
         <>
   <PcDetails
@@ -478,7 +482,7 @@ mb-16
 
     >
 
-      📸 Screenshot
+      Screenshot
 
     </button>
 
