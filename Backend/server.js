@@ -63,10 +63,32 @@ mongoose
 // SOCKET CONNECTION
 // ==========================
 
-io.on("connection", (socket) => {
-  console.log("Client Connected");
-});
+const screenshots = {};
 
+io.on("connection", (socket) => {
+
+  console.log("Client Connected");
+
+  socket.on(
+
+    "screenshot-response",
+
+    (data) => {
+
+      screenshots[
+        data.pcName
+      ] = data.screenshot;
+
+      console.log(
+        "Screenshot Received:",
+        data.pcName
+      );
+
+    }
+
+  );
+
+});
 // ==========================
 // REGISTER
 // ==========================
@@ -507,6 +529,8 @@ labExists
 
   }
 });
+
+
 
 // ==========================
 // GET PCS
@@ -1115,6 +1139,47 @@ app.delete(
 );
 
 
+app.post(
+  "/api/request-screenshot",
+  (req, res) => {
+
+    const { pcName } =
+      req.body;
+
+    io.emit(
+      "take-screenshot",
+      pcName
+    );
+
+    res.json({
+      success: true
+    });
+
+  }
+);
+
+app.get(
+  "/api/screenshot/:pcName",
+  (req, res) => {
+
+    const screenshot =
+      screenshots[
+        req.params.pcName
+      ];
+
+    res.json({
+
+      success: true,
+
+      screenshot:
+        screenshot || ""
+
+    });
+
+  }
+);
+
+
 // ==========================
 // ROOT ROUTE
 // ==========================
@@ -1126,6 +1191,8 @@ app.get("/", (req, res) => {
   );
 
 });
+
+
 
 // ==========================
 // PORT

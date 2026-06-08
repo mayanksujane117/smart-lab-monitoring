@@ -34,6 +34,11 @@ function LabDetails() {
     setSelectedPC] =
     useState(null);
 
+  const [
+  screenshot,
+  setScreenshot
+] = useState("");
+
   // ==========================
   // FETCH PCS
   // ==========================
@@ -134,6 +139,54 @@ function LabDetails() {
     }
 
   };
+
+  const takeScreenshot =
+async (pcName) => {
+
+  try {
+
+    await axios.post(
+
+      "https://smart-lab-monitoring.onrender.com/api/request-screenshot",
+
+      {
+        pcName
+      }
+
+    );
+
+    setTimeout(
+      async () => {
+
+        const response =
+          await axios.get(
+
+            `https://smart-lab-monitoring.onrender.com/api/screenshot/${pcName}`
+
+          );
+
+        setScreenshot(
+
+          response.data
+            .screenshot
+
+        );
+
+      },
+
+      2000
+
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
   return (
 
@@ -398,13 +451,66 @@ mb-16
 
         {/* PC DETAILS */}
 
-        <PcDetails
+        <>
+  <PcDetails
+    selectedPC={
+      selectedPC
+    }
+  />
 
-          selectedPC={
-            selectedPC
-          }
+  {selectedPC && (
 
-        />
+    <button
+
+      onClick={() =>
+        takeScreenshot(
+          selectedPC.pcName
+        )
+      }
+
+      className="
+      mt-4
+      bg-cyan-600
+      px-5
+      py-3
+      rounded-xl
+      "
+
+    >
+
+      📸 Screenshot
+
+    </button>
+
+  )}
+
+  {screenshot && (
+
+    <div className="
+    mt-6
+    bg-[#0B1220]
+    p-6
+    rounded-3xl
+    ">
+
+      <img
+
+        src={`data:image/png;base64,${screenshot}`}
+
+        alt="Screenshot"
+
+        className="
+        w-full
+        rounded-xl
+        "
+
+      />
+
+    </div>
+
+  )}
+
+</>
 
       </div>
 

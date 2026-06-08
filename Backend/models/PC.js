@@ -22,17 +22,27 @@ new mongoose.Schema({
   internetSpeed: Number,
 
   // ==========================
-  // OPTIONAL
+  // ACTIVE APP
   // ==========================
 
   activeApp: {
+
     type: String,
+
     default: "Unknown",
+
   },
 
+  // ==========================
+  // SCREENSHOT
+  // ==========================
+
   screenshot: {
+
     type: String,
+
     default: "",
+
   },
 
   // ==========================
