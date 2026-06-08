@@ -70,16 +70,22 @@ async () => {
 
   useEffect(() => {
 
-  const token =
-    localStorage.getItem("token");
+ const role =
+localStorage.getItem(
+  "role"
+);
 
-  if (!token) {
+if (
+  role !== "Admin"
+) {
 
-    navigate("/login");
+  navigate(
+    "/login"
+  );
 
-    return;
+  return;
 
-  }
+}
 
   fetchPCs();
   fetchLabs();

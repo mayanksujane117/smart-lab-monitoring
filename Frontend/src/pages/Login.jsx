@@ -68,24 +68,24 @@ function Login() {
 
       }
 
-      // Redirect
+     // Redirect
 
-      if (
-        response.data.user.role ===
-        "Admin"
-      ) {
+if (
+  response.data.user.role ===
+  "Admin"
+) {
 
-        window.location.href =
-          "/admin";
+  window.location.href =
+    "/admin";
 
-      }
+}
 
-      else {
+else {
 
-        window.location.href =
-          "/assistant";
+  window.location.href =
+    "/assistant";
 
-      }
+}
 
     }
 
