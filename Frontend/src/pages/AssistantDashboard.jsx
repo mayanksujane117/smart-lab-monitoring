@@ -1,474 +1,256 @@
-// src/pages/Dashboard.jsx
-
-import {
-  useEffect,
-  useState,
-} from "react";
-
+import { useEffect, useState } from "react";
 import axios from "axios";
-import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
 import StatCard from "../components/StatCard";
-import PcTable from "../components/PcTable";
-import Analytics from "../components/Analytics";
-import PcDetails from "../components/PcDetails";
-
 
 function AssistantDashboard() {
-
   const navigate = useNavigate();
 
-  const role =
-    localStorage.getItem("role");
+  const [pcs, setPcs] = useState([]);
+  const [labs, setLabs] = useState([]);
 
-  const username =
-    localStorage.getItem("username");
+  const username = localStorage.getItem("username");
+  const [showLabModal, setShowLabModal] = useState(false);
+  const [labName, setLabName] = useState("");
 
-  const [pcs, setPcs] =
-    useState([]);
+  // Assistant assigned labs (optional; backend returns `assignedLabs` for users)
+  const assignedLabs = (() => {
+    try {
+      const raw = localStorage.getItem("assignedLabs");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {
+      // ignore
+    }
+    return [];
+  })();
 
-  const [selectedPC,
-    setSelectedPC] =
-    useState(null);
 
-  // ==========================
-  // AUTH CHECK
-  // ==========================
+  const fetchPCs = async () => {
+    try {
+      const response = await axios.get(
+        "https://smart-lab-monitoring.onrender.com/api/pcs"
+      );
+      setPcs(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const fetchLabs = async () => {
+    try {
+      const response = await axios.get(
+        "https://smart-lab-monitoring.onrender.com/api/labs"
+      );
+      setLabs(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const shutdownAllPCs = async () => {
+    const confirmAction = window.confirm("Shutdown ALL PCs?");
+    if (!confirmAction) return;
+
+    try {
+      await axios.post(
+        "https://smart-lab-monitoring.onrender.com/api/shutdown-all"
+      );
+      alert("Command Sent");
+    } catch (error) {
+      console.log(error);
+      alert("Failed");
+    }
+  };
 
   useEffect(() => {
-
-    
-
-    const token =
-      localStorage.getItem(
-        "token"
-      );
-
+    const token = localStorage.getItem("token");
     if (!token) {
       navigate("/login");
+      return;
     }
 
-  }, []);
-
-  // ==========================
-  // FETCH PCS
-  // ==========================
-
-  useEffect(() => {
-
-    const fetchPCs =
-      async () => {
-
-        try {
-
-          const response =
-            await axios.get(
-              "https://smart-lab-monitoring.onrender.com/api/pcs"
-            );
-
-          setPcs(
-            response.data
-          );
-
-        }
-
-        catch (error) {
-
-          console.log(
-            error
-          );
-
-        }
-
-      };
-
     fetchPCs();
+    fetchLabs();
 
-    const interval =
-      setInterval(
-        fetchPCs,
-        10000
-      );
+    const interval = setInterval(() => {
+      fetchPCs();
+    }, 3000);
 
-    const socket =
-      io(
-        "https://smart-lab-monitoring.onrender.com"
-      );
-  socket.on(
-  "pc-update",
-  (updatedPC) => {
-
-    setPcs((prev) => {
-
-      const exists =
-        prev.find(
-          (pc) =>
-            pc.pcName === updatedPC.pcName
-        );
-
-      if (exists) {
-
-        return prev.map(
-          (pc) =>
-            pc.pcName === updatedPC.pcName
-              ? updatedPC
-              : pc
-        );
-
-      }
-
-      return [
-        ...prev,
-        updatedPC,
-      ];
-
-    });
-
-    // 👇 ADD THIS
-    setSelectedPC((prev) => {
-
-      if (
-        prev &&
-        prev.pcName === updatedPC.pcName
-      ) {
-
-        return updatedPC;
-
-      }
-
-      return prev;
-
-    });
-
-  }
-);
-
-    return () => {
-
-      clearInterval(
-        interval
-      );
-
-      socket.disconnect();
-
-    };
-
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // ==========================
-  // STATS
-  // ==========================
-
-  const totalPCs =
-    pcs.length;
-
-  const onlinePCs =
-    pcs.filter(
-
-      (pc) =>
-
-        pc.status ===
-        "Online"
-
-    ).length;
-
-  const sleepingPCs =
-    pcs.filter(
-
-      (pc) =>
-
-        pc.status ===
-        "Sleeping"
-
-    ).length;
-
-  const offlinePCs =
-    pcs.filter(
-
-      (pc) =>
-
-        pc.status ===
-        "Offline"
-
-    ).length;
-
-  // ==========================
-  // SHUTDOWN ALL
-  // ==========================
-
-  const shutdownAllPCs =
-    async () => {
-
-      const confirmShutdown =
-        window.confirm(
-
-          "Are you sure you want to shutdown ALL PCs ?"
-
-        );
-
-      if (!confirmShutdown)
-        return;
-
-      try {
-
-        await axios.post(
-
-          "https://smart-lab-monitoring.onrender.com/api/shutdown-all"
-
-        );
-
-        alert(
-          "Shutdown command sent to all PCs"
-        );
-
-      }
-
-      catch (error) {
-
-        console.log(
-          error
-        );
-
-        alert(
-          "Failed to shutdown all PCs"
-        );
-
-      }
-
-    };
-
-  // ==========================
-  // LOGOUT
-  // ==========================
-
-  const logout =
-    () => {
-
-      localStorage.clear();
-
-      navigate(
-        "/login"
+  const addLab = async () => {
+    try {
+      await axios.post(
+        "https://smart-lab-monitoring.onrender.com/api/labs",
+        { name: labName }
       );
+      alert("Lab Added");
+      setLabName("");
+      setShowLabModal(false);
+      fetchLabs();
+    } catch (error) {
+      console.log(error);
+      console.log(error?.response?.data);
+      alert(JSON.stringify(error?.response?.data));
+    }
+  };
 
+  const deleteLab = async (id) => {
+    const confirmDelete = window.confirm("Delete this lab?");
+    if (!confirmDelete) return;
+
+    try {
+      await axios.delete(
+        `https://smart-lab-monitoring.onrender.com/api/labs/${id}`
+      );
+      fetchLabs();
+      alert("Lab Deleted");
+    } catch (error) {
+      console.log(error);
+      alert("Delete Failed");
+    }
+  };
+
+  const logout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
+
+ 
+
+  const getLabStats = (lab) => {
+    const labPCs = pcs.filter((pc) => pc.lab === lab);
+    return {
+      total: labPCs.length,
+      online: labPCs.filter((pc) => pc.status === "Online").length,
+      offline: labPCs.filter((pc) => pc.status === "Offline").length,
     };
+  };
+
+  const visibleLabs = assignedLabs.length
+    ? labs.filter((lab) => assignedLabs.includes(lab.name))
+    : labs;
 
   return (
+    <div className="min-h-screen bg-[#050816] text-white p-6">
+      <div className="max-w-7xl mx-auto">
+        <Header />
 
-    <div className="
-      min-h-screen
-      bg-slate-950
-      text-white
-      p-6
-    ">
+        {/* ACTIONS */}
+        <div className="flex flex-wrap gap-4 mb-8">
+          {username ? null : null}
 
-      <div className="
-        max-w-7xl
-        mx-auto
-      ">
+          
 
-        {/* HEADER */}
+          <button
+            onClick={logout}
+            className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold ml-auto"
+          >
+            Logout
+          </button>
+        </div>
 
-        <div className="
-          flex
-          justify-between
-          items-center
-          mb-8
-        ">
+        {/* HERO */}
+        <div className="rounded-3xl bg-gradient-to-r from-cyan-600 to-blue-700 p-10 mb-10">
+          <h1 className="text-5xl font-bold mb-3">
+            Welcome Back, {username}
+          </h1>
+          <p className="text-xl text-cyan-100">
+            Monitor and manage assigned computer labs in real-time.
+          </p>
+        </div>
 
-          <div>
+       
+        {/* LABS */}
+        <h2 className="text-4xl font-bold mb-8">Labs Overview</h2>
 
-            <Header />
-
-            <div className="
-              mt-2
-              flex
-              items-center
-              gap-3
-              text-gray-400
-            ">
-
-              <span>
-                {username}
-              </span>
-
-              <span className="
-                bg-blue-600
-                px-3
-                py-1
-                rounded-full
-                text-sm
-                text-white
-              ">
-
-                {role}
-
-              </span>
-
-            </div>
-
-          </div>
-
-          <div className="
-            flex
-            flex-col
-            md:flex-row
-            gap-4
-            w-full
-            md:w-auto
-          ">
-            {role === "Admin" && (
-
-              <button
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {visibleLabs.map((lab) => {
+            const stats = getLabStats(lab.name);
+            return (
+              <div
+                key={lab._id || lab.name}
                 onClick={() =>
-                  navigate("/users")
+                  navigate(`/lab/${encodeURIComponent(lab.name)}`)
                 }
-
-                className="
-                  bg-blue-600
-                  hover:bg-blue-700
-                  px-6
-                  py-3
-                  rounded-2xl
-                  font-bold
-                "
-
+                className="cursor-pointer rounded-3xl border border-slate-800 bg-[#0B1220] p-8 hover:border-cyan-500 hover:scale-105 transition-all duration-300"
               >
+                <div className="flex items-start justify-between gap-4">
+                  <h2 className="text-3xl font-bold mb-8">{lab.name}</h2>
 
-                User Management
+                  {/* delete available only if you want; keeping optional */}
+                  {lab._id && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteLab(lab._id);
+                      }}
+                      className="text-red-300 hover:text-red-500"
+                      title="Delete lab"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
 
-              </button>
+                <div className="space-y-3">
+                  <div className="bg-green-500/10 text-green-400 p-4 rounded-xl">
+                    Online: {stats.online}
+                  </div>
+                  <div className="bg-red-500/10 text-red-400 p-4 rounded-xl">
+                    Offline: {stats.offline}
+                  </div>
+                  <div className="bg-slate-800 p-4 rounded-xl">
+                    Total PCs: {stats.total}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-            )}
+        {/* MODAL (optional add lab) */}
+        {showLabModal && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+            <div className="bg-[#0B1220] p-8 rounded-3xl w-[400px]">
+              <h2 className="text-3xl font-bold mb-6">Add Lab</h2>
+              <input
+                type="text"
+                placeholder="Lab Name"
+                value={labName}
+                onChange={(e) => setLabName(e.target.value)}
+                className="w-full p-4 rounded-xl bg-slate-900 mb-6"
+              />
 
-            <button
+              <div className="flex gap-3">
+                <button
+                  onClick={addLab}
+                  className="flex-1 bg-cyan-600 py-3 rounded-xl"
+                >
+                  Save
+                </button>
 
-              onClick={
-                shutdownAllPCs
-              }
-
-              className="
-                bg-red-600
-                hover:bg-red-700
-                px-6
-                py-3
-                rounded-2xl
-                font-bold
-              "
-
-            >
-
-              Shutdown All PCs
-
-            </button>
-
-            <button
-
-              onClick={logout}
-
-              className="
-                bg-slate-700
-                hover:bg-slate-800
-                px-6
-                py-3
-                rounded-2xl
-                font-bold
-              "
-
-            >
-
-              Logout
-
-            </button>
-
+                <button
+                  onClick={() => setShowLabModal(false)}
+                  className="flex-1 bg-slate-700 py-3 rounded-xl"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
-
-        </div>
-
-        {/* CARDS */}
-
-        <div className={`grid gap-6 mb-8 ${
-          role === "Admin"
-            ? "grid-cols-1 md:grid-cols-5"
-            : "grid-cols-1 md:grid-cols-4"
-        }`}>
-
-          <StatCard
-            title="Total PCs"
-            value={totalPCs}
-          />
-
-          <StatCard
-            title="Online"
-            value={onlinePCs}
-          />
-
-          <StatCard
-            title="Sleeping"
-            value={sleepingPCs}
-          />
-
-          <StatCard
-            title="Offline"
-            value={offlinePCs}
-          />
-
-          {role === "Admin" && (
-
-            <StatCard
-              title="Role"
-              value="Admin"
-            />
-
-          )}
-
-        </div>
-
-        {/* TABLE + ANALYTICS */}
-
-        <div className="
-          grid
-          grid-cols-1
-          lg:grid-cols-3
-          gap-6
-          mb-8
-        ">
-
-          <div className="
-            lg:col-span-2
-          ">
-
-            <PcTable
-              pcs={pcs}
-              setSelectedPC={
-                setSelectedPC
-              }
-            />
-
-          </div>
-
-          <Analytics
-            pcs={pcs}
-          />
-
-        </div>
-
-        {/* PC DETAILS */}
-
-        <PcDetails
-          selectedPC={
-            selectedPC
-          }
-        />
-
+        )}
       </div>
-
     </div>
-
   );
-
 }
 
 export default AssistantDashboard;
+

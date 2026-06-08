@@ -1,9 +1,21 @@
 function Header() {
 
+  const role =
+localStorage.getItem(
+  "role"
+);
+
   const username =
     localStorage.getItem(
       "username"
     );
+
+const assignedLabs =
+JSON.parse(
+  localStorage.getItem(
+    "assignedLabs"
+  ) || "[]"
+);
 
   return (
 
@@ -60,8 +72,7 @@ function Header() {
           text-sm
           text-slate-400
           ">
-
-            Administrator
+            {role}
 
           </p>
 

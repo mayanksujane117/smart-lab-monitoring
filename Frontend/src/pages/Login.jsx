@@ -47,6 +47,13 @@ function Login() {
         response.data.user.username
       );
 
+      localStorage.setItem(
+        "assignedLabs",
+        JSON.stringify(
+        response.data.user.assignedLabs || []
+      ) 
+);
+
       // Check Selected Role
 
       if (
