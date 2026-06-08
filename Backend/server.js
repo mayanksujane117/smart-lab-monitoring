@@ -109,18 +109,29 @@ app.post("/api/register", async (req, res) => {
 
     // CREATE USER
 
-    const user =
+  const user =
   await User.create({
+
     username,
-    password: hashedPassword,
-    role: "Lab Assistant",
+
+    password:
+      hashedPassword,
+
+    role:
+      "Lab Assistant",
+
+    assignedLab:
+      "",
+
   });
 
-    res.json({
-      success: true,
-      user,
-    });
+res.json({
 
+  success: true,
+
+  user,
+
+});
   } catch (error) {
 
     console.log(error);
@@ -140,10 +151,17 @@ app.post("/api/add-user", async (req, res) => {
 
   try {
 
-    const {
-      username,
-      password,
-    } = req.body;
+   const {
+
+  username,
+
+  password,
+
+  role,
+
+  assignedLabs,
+
+} = req.body;
 
     if (!username || !password) {
 
@@ -175,17 +193,21 @@ app.post("/api/add-user", async (req, res) => {
       );
 
     const user =
-      await User.create({
+  await User.create({
 
-        username,
+    username,
 
-        password:
-          hashedPassword,
+    password:
+      hashedPassword,
 
-        role:
-          "Lab Assistant",
+    role:
+      role ||
+      "Lab Assistant",
 
-      });
+   assignedLabs:
+  assignedLabs || [],
+
+  });
 
     res.status(201).json({
 
@@ -196,15 +218,18 @@ app.post("/api/add-user", async (req, res) => {
 
       user: {
 
-        id: user._id,
+  id: user._id,
 
-        username:
-          user.username,
+  username:
+    user.username,
 
-        role:
-          user.role,
+  role:
+    user.role,
 
-      },
+  assignedLab:
+    user.assignedLabs,
+
+},
 
     });
 
@@ -282,15 +307,26 @@ app.post("/api/login", async (req, res) => {
     );
 
    res.json({
+
   success: true,
 
   token,
 
   user: {
+
     id: user._id,
-    username: user.username,
-    role: user.role,
+
+    username:
+      user.username,
+
+    role:
+      user.role,
+
+   assignedLabs:
+  user.assignedLabs,
+
   },
+
 });
 
   } catch (error) {
@@ -583,22 +619,31 @@ app.post(
 
   (req, res) => {
 
-    const { lab } =
-      req.body;
+    try {
 
-    io.emit(
+      const { lab } =
+        req.body;
 
-      "shutdown-lab",
+      io.emit(
+        "shutdown-lab",
+        lab
+      );
 
-      lab
+      res.json({
+        success: true,
+      });
 
-    );
+    }
 
-    res.json({
+    catch (error) {
 
-      success: true,
+      console.log(error);
 
-    });
+      res.status(500).json({
+        success: false,
+      });
+
+    }
 
   }
 
@@ -826,6 +871,71 @@ app.delete("/api/users/:id", async (req, res) => {
 
   }
 });
+
+// ==========================
+// UPDATE USER
+// ==========================
+
+app.put(
+  "/api/users/:id",
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        role,
+
+        assignedLabs,
+
+      } = req.body;
+
+      const updatedUser =
+        await User.findByIdAndUpdate(
+
+          req.params.id,
+
+          {
+
+            role,
+
+            assignedLabs,
+
+          },
+
+          {
+
+            new: true,
+
+          }
+
+        );
+
+      res.json({
+
+        success: true,
+
+        user:
+          updatedUser,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+);
 
 // ==========================
 // CHANGE ROLE
