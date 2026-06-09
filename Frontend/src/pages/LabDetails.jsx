@@ -67,6 +67,8 @@ function LabDetails() {
 
     };
 
+    
+
     fetchPCs();
 
     const interval = setInterval(fetchPCs, 5000);
@@ -74,6 +76,28 @@ function LabDetails() {
     return () => clearInterval(interval);
 
   }, [decodedLab]);
+
+  useEffect(() => {
+
+  if (!selectedPC) return;
+
+  const updatedPC = pcs.find(
+
+    (pc) =>
+      pc.pcName ===
+      selectedPC.pcName
+
+  );
+
+  if (updatedPC) {
+
+    setSelectedPC(
+      updatedPC
+    );
+
+  }
+
+}, [pcs]);
 
   // ==========================
   // STATS
