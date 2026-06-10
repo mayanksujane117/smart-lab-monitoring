@@ -34,6 +34,20 @@ function LabDetails() {
     setSelectedPC] =
     useState(null);
 
+    const liveSelectedPC = selectedPC
+
+  ? pcs.find(
+
+      (pc) =>
+
+        pc.pcName ===
+
+        selectedPC.pcName
+
+    ) || selectedPC
+
+  : null;
+
   const [
   screenshot,
   setScreenshot
@@ -85,7 +99,7 @@ const [
   // Note: do not call setSelectedPC from an effect to avoid cascading renders.
   // The selectedPC view is expected to refresh from PcTable updates.
 
-
+ 
 
   // ==========================
   // STATS
@@ -438,11 +452,10 @@ mb-16
 
         <>
   <PcDetails
-    selectedPC={
-      selectedPC
-    }
-  />
-
+  selectedPC={
+    liveSelectedPC
+  }
+/>
       {selectedPC && (
 
         <button
