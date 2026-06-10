@@ -112,15 +112,7 @@ const [
 
     ).length;
 
-  const sleepingPCs =
-    pcs.filter(
-
-      (pc) =>
-        pc.status ===
-        "Sleeping"
-
-    ).length;
-
+  
   const shutdownLab = async () => {
 
     const text = prompt(`Type Piemr to confirm shutdown of ${decodedLab}`);
@@ -410,25 +402,7 @@ mb-16
           p-6
           ">
 
-            <p className="
-            text-slate-400
-            ">
-
-              Sleeping
-
-            </p>
-
-            <h2 className="
-            text-5xl
-            font-bold
-            text-yellow-400
-            mt-3
-            ">
-
-              {sleepingPCs}
-
-            </h2>
-
+            
           </div>
 
         </div>
