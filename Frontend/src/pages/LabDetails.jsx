@@ -154,41 +154,43 @@ const [
 
   const takeScreenshot = async (pcName) => {
 
-    try {
+  try {
 
-      setLoadingScreenshot(true);
+    setLoadingScreenshot(true);
 
-      await axios.post(
-        "https://smart-lab-monitoring.onrender.com/api/request-screenshot",
-
-
+    await axios.post(
+      "https://smart-lab-monitoring.onrender.com/api/request-screenshot",
       {
         pcName
       }
-
     );
 
     setTimeout(
       async () => {
 
-        const response =
-          await axios.get(
+        try {
 
-            `https://smart-lab-monitoring.onrender.com/api/screenshot/${pcName}`
+          const response =
+            await axios.get(
+              `https://smart-lab-monitoring.onrender.com/api/screenshot/${pcName}`
+            );
 
+          setScreenshot(
+            response.data.screenshot
           );
 
-        setScreenshot(
+        } catch (error) {
 
-          response.data
-            .screenshot
+          console.log(error);
 
-        );
+        } finally {
+
+          setLoadingScreenshot(false);
+
+        }
 
       },
-
       2000
-
     );
 
   }
@@ -197,10 +199,11 @@ const [
 
     console.log(error);
 
+    setLoadingScreenshot(false);
+
   }
 
 };
-
   return (
 
     <div className="
@@ -479,32 +482,39 @@ mb-16
 
         <button
 
-          onClick={() =>
-            takeScreenshot(
-              selectedPC.pcName
-            )
-          }
+  onClick={() =>
+    takeScreenshot(
+      selectedPC.pcName
+    )
+  }
 
-          disabled={loadingScreenshot}
+  disabled={loadingScreenshot}
 
-          className="
-          mt-4
-          bg-cyan-600
-          hover:bg-cyan-700
-          px-5
-          py-3
-          rounded-xl
-          font-semibold
-          disabled:opacity-60
-          disabled:cursor-not-allowed
-          "
+  className={`
+    mt-4
+    px-5
+    py-3
+    rounded-xl
+    font-semibold
+    transition-all
+    duration-300
 
-        >
+    ${
+      loadingScreenshot
+        ? "bg-yellow-500 text-black cursor-not-allowed"
+        : "bg-cyan-600 hover:bg-cyan-700 text-white"
+    }
+  `}
 
-          {loadingScreenshot ? "Requesting..." : "Screenshot"}
+>
 
-        </button>
+  {
+    loadingScreenshot
+      ? "⏳ Taking Screenshot..."
+      : "Screenshot"
+  }
 
+</button>
       )}
 
 
