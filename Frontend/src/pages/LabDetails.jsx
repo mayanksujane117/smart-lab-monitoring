@@ -39,6 +39,11 @@ function LabDetails() {
   setScreenshot
 ] = useState("");
 
+const [
+  loadingScreenshot,
+  setLoadingScreenshot
+] = useState(false);
+
   // ==========================
   // FETCH PCS
   // ==========================
@@ -77,27 +82,10 @@ function LabDetails() {
 
   }, [decodedLab]);
 
-  useEffect(() => {
+  // Note: do not call setSelectedPC from an effect to avoid cascading renders.
+  // The selectedPC view is expected to refresh from PcTable updates.
 
-  if (!selectedPC) return;
 
-  const updatedPC = pcs.find(
-
-    (pc) =>
-      pc.pcName ===
-      selectedPC.pcName
-
-  );
-
-  if (updatedPC) {
-
-    setSelectedPC(
-      updatedPC
-    );
-
-  }
-
-}, [pcs]);
 
   // ==========================
   // STATS
@@ -164,14 +152,15 @@ function LabDetails() {
 
   };
 
-  const takeScreenshot =
-async (pcName) => {
+  const takeScreenshot = async (pcName) => {
 
-  try {
+    try {
 
-    await axios.post(
+      setLoadingScreenshot(true);
 
-      "https://smart-lab-monitoring.onrender.com/api/request-screenshot",
+      await axios.post(
+        "https://smart-lab-monitoring.onrender.com/api/request-screenshot",
+
 
       {
         pcName
@@ -486,31 +475,38 @@ mb-16
     }
   />
 
-  {selectedPC && (
+      {selectedPC && (
 
-    <button
+        <button
 
-      onClick={() =>
-        takeScreenshot(
-          selectedPC.pcName
-        )
-      }
+          onClick={() =>
+            takeScreenshot(
+              selectedPC.pcName
+            )
+          }
 
-      className="
-      mt-4
-      bg-cyan-600
-      px-5
-      py-3
-      rounded-xl
-      "
+          disabled={loadingScreenshot}
 
-    >
+          className="
+          mt-4
+          bg-cyan-600
+          hover:bg-cyan-700
+          px-5
+          py-3
+          rounded-xl
+          font-semibold
+          disabled:opacity-60
+          disabled:cursor-not-allowed
+          "
 
-      Screenshot
+        >
 
-    </button>
+          {loadingScreenshot ? "Requesting..." : "Screenshot"}
 
-  )}
+        </button>
+
+      )}
+
 
   {screenshot && (
 
