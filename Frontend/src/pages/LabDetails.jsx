@@ -394,17 +394,8 @@ mb-16
 
           </div>
 
-          <div className="
-          bg-[#0B1220]
-          border
-          border-slate-800
-          rounded-3xl
-          p-6
-          ">
-
-            
-          </div>
-
+          
+          
         </div>
 
         {/* TABLE + ANALYTICS */}
