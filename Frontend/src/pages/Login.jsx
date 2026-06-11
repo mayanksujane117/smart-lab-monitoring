@@ -33,6 +33,15 @@ function Login() {
       const user =
         response.data.user;
 
+        console.log("FULL RESPONSE");
+console.log(response.data);
+
+console.log("USER DATA");
+console.log(user);
+
+console.log("ORG ID");
+console.log(user.organizationId);
+
       const token =
         response.data.token;
 
@@ -59,6 +68,22 @@ function Login() {
           user.assignedLabs || []
         )
       );
+
+      localStorage.setItem(
+  "organizationId",
+  user.organizationId
+);
+
+localStorage.setItem(
+  "organizationId",
+  user.organizationId
+);
+
+
+console.log(
+  "ORG ID:",
+  user.organizationId
+);
 
       // Check Selected Role
 

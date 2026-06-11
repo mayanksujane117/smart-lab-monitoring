@@ -1,42 +1,35 @@
 const mongoose =
 require("mongoose");
 
-const labSchema =
+const organizationSchema =
 new mongoose.Schema({
 
   name: {
-
     type: String,
-
     required: true,
-
+    unique: true,
   },
 
-  organizationId: {
-
-    type:
-      mongoose.Schema.Types.ObjectId,
-
-    ref:
-      "Organization",
-
+  code: {
+    type: String,
     required: true,
+    unique: true,
+  },
 
+  status: {
+    type: String,
+    default: "Active",
   },
 
   createdAt: {
-
     type: Date,
-
-    default:
-      Date.now,
-
+    default: Date.now,
   },
 
 });
 
 module.exports =
 mongoose.model(
-  "Lab",
-  labSchema
+  "Organization",
+  organizationSchema
 );

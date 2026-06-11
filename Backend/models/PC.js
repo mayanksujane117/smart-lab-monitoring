@@ -1,59 +1,67 @@
-const mongoose = require("mongoose");
+const mongoose =
+require("mongoose");
 
 const pcSchema =
 new mongoose.Schema({
 
-  pcName: String,
+  organizationId: {
 
-  lab: String,
+    type:
+      mongoose.Schema.Types.ObjectId,
 
-  ipAddress: String,
+    ref:
+      "Organization",
 
-  status: String,
+  },
 
-  // ==========================
-  // SYSTEM STATS
-  // ==========================
+  pcName:
+    String,
 
-  cpuUsage: Number,
+  lab:
+    String,
 
-  ramUsage: Number,
+  ipAddress:
+    String,
 
-  internetSpeed: Number,
+  status:
+    String,
 
-  // ==========================
-  // ACTIVE APP
-  // ==========================
+  cpuUsage:
+    Number,
+
+  ramUsage:
+    Number,
+
+  internetSpeed:
+    Number,
 
   activeApp: {
 
-    type: String,
+    type:
+      String,
 
-    default: "Unknown",
+    default:
+      "Unknown",
 
   },
-
-  // ==========================
-  // SCREENSHOT
-  // ==========================
 
   screenshot: {
 
-    type: String,
+    type:
+      String,
 
-    default: "",
+    default:
+      "",
 
   },
 
-  // ==========================
-  // LAST SEEN
-  // ==========================
-
   lastSeen: {
 
-    type: Date,
+    type:
+      Date,
 
-    default: Date.now,
+    default:
+      Date.now,
 
   },
 

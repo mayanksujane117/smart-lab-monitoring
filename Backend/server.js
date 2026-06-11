@@ -14,6 +14,8 @@ const { Server } = require("socket.io");
 const PC = require("./models/PC");
 const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
+const auth = require("./middleware/auth");
+const organizationRoutes = require("./routes/organizationRoutes");
 
 
 // ==========================
@@ -44,6 +46,11 @@ app.use(
   express.json({
     limit: "50mb",
   })
+);
+
+app.use(
+  "/api/organizations",
+  organizationRoutes
 );
 
 // ==========================
@@ -172,8 +179,7 @@ res.json({
 app.post("/api/add-user", async (req, res) => {
 
   try {
-
-   const {
+const {
 
   username,
 
@@ -182,6 +188,8 @@ app.post("/api/add-user", async (req, res) => {
   role,
 
   assignedLabs,
+
+  organizationId,
 
 } = req.body;
 
@@ -193,6 +201,19 @@ app.post("/api/add-user", async (req, res) => {
       });
 
     }
+
+    if (!organizationId) {
+
+  return res.status(400).json({
+
+    success: false,
+
+    message:
+      "Organization required",
+
+  });
+
+}
 
     const existingUser =
       await User.findOne({
@@ -226,6 +247,9 @@ app.post("/api/add-user", async (req, res) => {
       role ||
       "Lab Assistant",
 
+      
+  organizationId,
+
    assignedLabs:
   assignedLabs || [],
 
@@ -238,7 +262,7 @@ app.post("/api/add-user", async (req, res) => {
       message:
         "Lab Assistant Created",
 
-      user: {
+ user: {
 
   id: user._id,
 
@@ -248,7 +272,10 @@ app.post("/api/add-user", async (req, res) => {
   role:
     user.role,
 
-  assignedLab:
+  organizationId:
+    user.organizationId,
+
+  assignedLabs:
     user.assignedLabs,
 
 },
@@ -319,14 +346,27 @@ app.post("/api/login", async (req, res) => {
     // TOKEN
 
     const token = jwt.sign(
-      {
-        id: user._id,
-      },
-      "secretkey",
-      {
-        expiresIn: "7d",
-      }
-    );
+
+  {
+
+    id: user._id,
+
+    role: user.role,
+
+    organizationId:
+      user.organizationId,
+
+  },
+
+  process.env.JWT_SECRET,
+
+  {
+
+    expiresIn: "7d",
+
+  }
+
+);
 
    res.json({
 
@@ -338,14 +378,15 @@ app.post("/api/login", async (req, res) => {
 
     id: user._id,
 
-    username:
-      user.username,
+    username: user.username,
 
-    role:
-      user.role,
+    role: user.role,
 
-   assignedLabs:
-  user.assignedLabs,
+    organizationId:
+      user.organizationId,
+
+    assignedLabs:
+      user.assignedLabs,
 
   },
 
@@ -430,17 +471,17 @@ app.post("/api/heartbeat", async (req, res) => {
   try {
 
     const {
-      pcName,
-      lab,
-      ipAddress,
-      status,
-      cpuUsage,
-      ramUsage,
-      internetSpeed,
-      activeApp,
-      screenshot,
-    } = req.body;
-
+  organizationId,
+  pcName,
+  lab,
+  ipAddress,
+  status,
+  cpuUsage,
+  ramUsage,
+  internetSpeed,
+  activeApp,
+  screenshot,
+} = req.body;
     // CHECK LAB EXISTS
 
 const labExists =
@@ -459,29 +500,34 @@ labExists
       await PC.findOneAndUpdate(
 
         {
-          pcName,
-        },
+  pcName,
+  organizationId,
+},
 
-        {
-          pcName,
-          lab: finalLab,
-          ipAddress,
-          status,
-          cpuUsage,
-          ramUsage,
-          internetSpeed,
-          activeApp,
-          screenshot,
+       {
+  organizationId,
 
-          lastSeen:
-            new Date(),
-        },
+  pcName,
 
-        {
-          upsert: true,
-          new: true,
-        }
+  lab: finalLab,
 
+  ipAddress,
+
+  status,
+
+  cpuUsage,
+
+  ramUsage,
+
+  internetSpeed,
+
+  activeApp,
+
+  screenshot,
+
+  lastSeen:
+    new Date(),
+},
       );
 
     // SAVE LOG
@@ -850,26 +896,40 @@ setInterval(async () => {
 // GET USERS
 // ==========================
 
-app.get("/api/users", async (req, res) => {
-  try {
+app.get(
+  "/api/users/:organizationId",
+  async (req, res) => {
 
-    const users =
-      await User.find()
-      .select("-password");
+    try {
 
-    res.json(users);
+      const users =
+        await User.find({
 
-  } catch (error) {
+          organizationId:
+            req.params.organizationId,
 
-    console.log(error);
+        })
 
-    res.status(500).json({
-      success: false,
-    });
+        .select("-password");
+
+      res.json(users);
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
 
   }
-});
-
+);
 // ==========================
 // DELETE USER
 // ==========================
@@ -1002,8 +1062,14 @@ app.post("/api/labs", async (req, res) => {
 
   try {
 
-    const { name } =
-      req.body;
+    const {
+
+  name,
+
+  organizationId,
+
+} = req.body;
+
 
     const exists =
       await Lab.findOne({
@@ -1020,9 +1086,14 @@ app.post("/api/labs", async (req, res) => {
     }
 
     const lab =
-      await Lab.create({
-        name,
-      });
+await Lab.create({
+
+  name,
+
+  organizationId,
+
+});
+
 
     res.json({
       success: true,

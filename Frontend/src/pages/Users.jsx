@@ -51,9 +51,12 @@ const [editLabs,
 
         const response =
           await axios.get(
-            "https://smart-lab-monitoring.onrender.com/api/users"
-          );
 
+`https://smart-lab-monitoring.onrender.com/api/users/${localStorage.getItem(
+  "organizationId"
+)}`
+
+);
         console.log(
           response.data
       );
@@ -77,8 +80,12 @@ const [editLabs,
     try {
 
       const response = await axios.get(
-        "https://smart-lab-monitoring.onrender.com/api/labs"
-      );
+
+  `https://smart-lab-monitoring.onrender.com/api/users/${localStorage.getItem(
+    "organizationId"
+  )}`
+
+);
 
       setLabs(response.data);
 
@@ -115,14 +122,27 @@ const [editLabs,
 
       try {
         await axios.post(
-          "https://smart-lab-monitoring.onrender.com/api/add-user",
-          {
-            username: newUsername,
-            password: newPassword,
-            role,
-            assignedLabs,
-          }
-        );
+  "https://smart-lab-monitoring.onrender.com/api/add-user",
+  {
+
+    username:
+      newUsername,
+
+    password:
+      newPassword,
+
+    role,
+
+    assignedLabs,
+
+    organizationId:
+      localStorage.getItem(
+        "organizationId"
+      ),
+
+  }
+);
+
 
         setNewUsername("");
         setNewPassword("");
