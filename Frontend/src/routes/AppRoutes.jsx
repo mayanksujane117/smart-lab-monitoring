@@ -12,11 +12,15 @@ import ForgotPassword from "../pages/ForgotPassword";
 import Users from "../pages/Users";
 import LabDetails from "../pages/LabDetails";
 
+import ProtectedRoute from "../components/ProtectedRoute";
+
 function AppRoutes() {
 
   return (
 
     <Routes>
+
+      {/* PUBLIC ROUTES */}
 
       <Route
         path="/"
@@ -38,24 +42,71 @@ function AppRoutes() {
         element={<ForgotPassword />}
       />
 
+      {/* ADMIN ONLY */}
+
       <Route
         path="/admin"
-        element={<AdminDashboard />}
+        element={
+          <ProtectedRoute
+            roles={["admin"]}
+          >
+            <AdminDashboard />
+          </ProtectedRoute>
+        }
       />
+
+      {/* ADMIN + ASSISTANT */}
 
       <Route
         path="/assistant"
-        element={<AssistantDashboard />}
-      />
-
-      <Route
-        path="/users"
-        element={<Users />}
+        element={
+          <ProtectedRoute
+            roles={[
+              "admin",
+              "assistant"
+            ]}
+          >
+            <AssistantDashboard />
+          </ProtectedRoute>
+        }
       />
 
       <Route
         path="/lab/:labName"
-        element={<LabDetails />}
+        element={
+          <ProtectedRoute
+            roles={[
+              "admin",
+              "assistant"
+            ]}
+          >
+            <LabDetails />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ADMIN ONLY */}
+
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute
+            roles={["admin"]}
+          >
+            <Users />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* INVALID URL */}
+
+      <Route
+        path="*"
+        element={
+          <Navigate
+            to="/login"
+          />
+        }
       />
 
     </Routes>
