@@ -48,22 +48,22 @@ function AppRoutes() {
         path="/admin"
         element={
           <ProtectedRoute
-            roles={["admin"]}
+            roles={["Admin"]}
           >
             <AdminDashboard />
           </ProtectedRoute>
         }
       />
 
-      {/* ADMIN + ASSISTANT */}
+      {/* ADMIN + LAB ASSISTANT */}
 
       <Route
         path="/assistant"
         element={
           <ProtectedRoute
             roles={[
-              "admin",
-              "assistant"
+              "Admin",
+              "Lab Assistant"
             ]}
           >
             <AssistantDashboard />
@@ -76,8 +76,8 @@ function AppRoutes() {
         element={
           <ProtectedRoute
             roles={[
-              "admin",
-              "assistant"
+              "Admin",
+              "Lab Assistant"
             ]}
           >
             <LabDetails />
@@ -91,7 +91,7 @@ function AppRoutes() {
         path="/users"
         element={
           <ProtectedRoute
-            roles={["admin"]}
+            roles={["Admin"]}
           >
             <Users />
           </ProtectedRoute>
@@ -105,6 +105,7 @@ function AppRoutes() {
         element={
           <Navigate
             to="/login"
+            replace
           />
         }
       />

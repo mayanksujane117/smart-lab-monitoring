@@ -30,62 +30,69 @@ function Login() {
 
         );
 
+      const user =
+        response.data.user;
+
+      const token =
+        response.data.token;
+
       // Save Data
 
       localStorage.setItem(
         "token",
-        response.data.token
+        token
       );
 
       localStorage.setItem(
         "role",
-        response.data.user.role
+        user.role
       );
 
       localStorage.setItem(
         "username",
-        response.data.user.username
+        user.username
       );
 
       localStorage.setItem(
         "assignedLabs",
         JSON.stringify(
-        response.data.user.assignedLabs || []
-      ) 
-);
+          user.assignedLabs || []
+        )
+      );
 
       // Check Selected Role
 
       if (
-        response.data.user.role !== role
+        user.role !== role
       ) {
 
+        localStorage.clear();
+
         alert(
-          `This account is ${response.data.user.role}. Please select correct role.`
+          `This account is ${user.role}. Please select correct role.`
         );
 
         return;
 
       }
 
-     // Redirect
+      // Redirect
 
-if (
-  response.data.user.role ===
-  "Admin"
-) {
+      if (
+        user.role === "Admin"
+      ) {
 
-  window.location.href =
-    "/admin";
+        window.location.href =
+          "/admin";
 
-}
+      }
 
-else {
+      else {
 
-  window.location.href =
-    "/assistant";
+        window.location.href =
+          "/assistant";
 
-}
+      }
 
     }
 
@@ -94,8 +101,11 @@ else {
       console.log(error);
 
       alert(
+
         error?.response?.data?.message ||
-        "Login Failed ❌"
+
+        "Login Failed"
+
       );
 
     }
@@ -152,8 +162,6 @@ else {
 
         </p>
 
-        {/* ROLE */}
-
         <label className="
           text-gray-300
           block
@@ -196,8 +204,6 @@ else {
 
         </select>
 
-        {/* USERNAME */}
-
         <input
 
           type="text"
@@ -223,8 +229,6 @@ else {
           "
 
         />
-
-        {/* PASSWORD */}
 
         <input
 
