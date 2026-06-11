@@ -582,28 +582,43 @@ labExists
 // GET PCS
 // ==========================
 
-app.get("/api/pcs", async (req, res) => {
+app.get(
+  "/api/pcs/:organizationId",
+  async (req, res) => {
 
-  try {
+    try {
 
-    const pcs =
-      await PC.find().sort({
-        lastSeen: -1,
+      const pcs =
+        await PC.find({
+
+          organizationId:
+            req.params.organizationId,
+
+        })
+
+        .sort({
+          lastSeen: -1,
+        });
+
+      res.json(pcs);
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        error:
+          "Server Error",
+
       });
 
-    res.json(pcs);
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      error: "Server Error",
-    });
+    }
 
   }
-});
-
+);
 // ==========================
 // GET HISTORY
 // ==========================
@@ -1115,28 +1130,42 @@ await Lab.create({
 // GET LABS
 // ==========================
 
-app.get("/api/labs", async (req, res) => {
+app.get(
+  "/api/labs/:organizationId",
+  async (req, res) => {
 
-  try {
+    try {
 
-    const labs =
-      await Lab.find().sort({
-        createdAt: -1,
+      const labs =
+        await Lab.find({
+
+          organizationId:
+            req.params.organizationId,
+
+        })
+
+        .sort({
+          createdAt: -1,
+        });
+
+      res.json(labs);
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
       });
 
-    res.json(labs);
-
-  } catch (error) {
-
-    console.log(error);
-
-    res.status(500).json({
-      success: false,
-    });
+    }
 
   }
-
-});
+);
 
 app.delete(
   "/api/labs/:id",

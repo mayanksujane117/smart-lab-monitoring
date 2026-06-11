@@ -15,15 +15,26 @@ function AdminDashboard() {
   const [pcs, setPcs] = useState([]);
   const [labs, setLabs] = useState([]);
   const username = localStorage.getItem("username");
-
+const organizationId =
+  localStorage.getItem(
+    "organizationId"
+  );
   const [showLabModal, setShowLabModal] = useState(false);
   const [labName, setLabName] = useState("");
 
   const fetchPCs = async () => {
     try {
-      const response = await axios.get(
-        "https://smart-lab-monitoring.onrender.com/api/pcs"
-      );
+     const organizationId =
+  localStorage.getItem(
+    "organizationId"
+  );
+
+const response =
+  await axios.get(
+
+    `https://smart-lab-monitoring.onrender.com/api/pcs/${organizationId}`
+
+  );
       setPcs(response.data);
     } catch (error) {
       console.log(error);
@@ -111,7 +122,9 @@ if (
     const response =
       await axios.get(
         "https://smart-lab-monitoring.onrender.com/api/labs"
-      );
+      );await axios.get(
+  `https://smart-lab-monitoring.onrender.com/api/labs/${organizationId}`
+);
 
     setLabs(
       response.data
@@ -128,9 +141,16 @@ if (
   const addLab = async () => {
     try {
       await axios.post(
-        "https://smart-lab-monitoring.onrender.com/api/labs",
-        { name: labName }
-      );
+  "https://smart-lab-monitoring.onrender.com/api/labs",
+  {
+
+    name:
+      labName,
+
+    organizationId,
+
+  }
+);
 
       alert("Lab Added");
 

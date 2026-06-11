@@ -74,10 +74,6 @@ console.log(user.organizationId);
   user.organizationId
 );
 
-localStorage.setItem(
-  "organizationId",
-  user.organizationId
-);
 
 
 console.log(
