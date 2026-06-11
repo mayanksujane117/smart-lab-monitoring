@@ -1,6 +1,4 @@
-import {
-  Navigate
-} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 function ProtectedRoute({
   children,
@@ -14,17 +12,32 @@ function ProtectedRoute({
     localStorage.getItem("role");
 
   if (!token) {
-    return <Navigate to="/login" />;
+
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+
   }
 
   if (
     roles &&
     !roles.includes(role)
   ) {
-    return <Navigate to="/" />;
+
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+
   }
 
   return children;
+
 }
 
 export default ProtectedRoute;
