@@ -128,38 +128,7 @@ async () => {
 
 };
 
-  const fetchStats =
-async () => {
-
-    
-
-  try {
-
-    const response =
-      await axios.get(
-
-        "https://smart-lab-monitoring.onrender.com/api/super-admin/stats"
-
-      );
-
-    setStats(
-      response.data
-    );
-
-  }
-
-  catch (error) {
-
-    console.log(error);
-
-  }
-
-};
-
-const fetchOrganizations =
-async () => {
-
-    const toggleOrganization =
+const toggleOrganization =
 async (id) => {
 
   try {
@@ -178,9 +147,7 @@ async (id) => {
 
     console.log(error);
 
-    alert(
-      "Failed"
-    );
+    alert("Failed");
 
   }
 
@@ -218,6 +185,40 @@ async (id) => {
   }
 
 };
+
+
+  const fetchStats =
+async () => {
+
+    
+
+  try {
+
+    const response =
+      await axios.get(
+
+        "https://smart-lab-monitoring.onrender.com/api/super-admin/stats"
+
+      );
+
+    setStats(
+      response.data
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+const fetchOrganizations =
+async () => {
+
+   
 
   try {
 
