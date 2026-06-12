@@ -6,9 +6,12 @@ import {
 
 import AdminDashboard from "../pages/AdminDashboard";
 import AssistantDashboard from "../pages/AssistantDashboard";
+import SuperAdmin from "../pages/SuperAdmin";
+
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+
 import Users from "../pages/Users";
 import LabDetails from "../pages/LabDetails";
 
@@ -24,7 +27,11 @@ function AppRoutes() {
 
       <Route
         path="/"
-        element={<Navigate to="/login" />}
+        element={
+          <Navigate
+            to="/login"
+          />
+        }
       />
 
       <Route
@@ -42,13 +49,30 @@ function AppRoutes() {
         element={<ForgotPassword />}
       />
 
-      {/* ADMIN ONLY */}
+      {/* SUPER ADMIN */}
+
+      <Route
+        path="/super-admin"
+        element={
+          <ProtectedRoute
+            roles={[
+              "Super Admin"
+            ]}
+          >
+            <SuperAdmin />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ADMIN */}
 
       <Route
         path="/admin"
         element={
           <ProtectedRoute
-            roles={["Admin"]}
+            roles={[
+              "Admin"
+            ]}
           >
             <AdminDashboard />
           </ProtectedRoute>
@@ -85,20 +109,22 @@ function AppRoutes() {
         }
       />
 
-      {/* ADMIN ONLY */}
+      {/* USERS */}
 
       <Route
         path="/users"
         element={
           <ProtectedRoute
-            roles={["Admin"]}
+            roles={[
+              "Admin"
+            ]}
           >
             <Users />
           </ProtectedRoute>
         }
       />
 
-      {/* INVALID URL */}
+      {/* INVALID ROUTE */}
 
       <Route
         path="*"

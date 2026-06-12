@@ -12,28 +12,83 @@ new mongoose.Schema({
     ref:
       "Organization",
 
+    required:
+      true,
+
+    index:
+      true,
+
   },
 
-  pcName:
-    String,
+  pcName: {
 
-  lab:
-    String,
+    type:
+      String,
 
-  ipAddress:
-    String,
+    required:
+      true,
 
-  status:
-    String,
+  },
 
-  cpuUsage:
-    Number,
+  lab: {
 
-  ramUsage:
-    Number,
+    type:
+      String,
 
-  internetSpeed:
-    Number,
+    default:
+      "Unassigned",
+
+  },
+
+  ipAddress: {
+
+    type:
+      String,
+
+    default:
+      "",
+
+  },
+
+  status: {
+
+    type:
+      String,
+
+    default:
+      "Offline",
+
+  },
+
+  cpuUsage: {
+
+    type:
+      Number,
+
+    default:
+      0,
+
+  },
+
+  ramUsage: {
+
+    type:
+      Number,
+
+    default:
+      0,
+
+  },
+
+  internetSpeed: {
+
+    type:
+      Number,
+
+    default:
+      0,
+
+  },
 
   activeApp: {
 
@@ -65,7 +120,32 @@ new mongoose.Schema({
 
   },
 
-});
+},
+{
+  timestamps: true,
+}
+);
+
+// Same organization me
+// same PC name duplicate na ho
+
+pcSchema.index(
+
+  {
+
+    organizationId: 1,
+
+    pcName: 1,
+
+  },
+
+  {
+
+    unique: true,
+
+  }
+
+);
 
 module.exports =
 mongoose.model(

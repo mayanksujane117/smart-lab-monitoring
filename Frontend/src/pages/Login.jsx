@@ -9,9 +9,7 @@ function Login() {
   const [password, setPassword] =
     useState("");
 
-  const [role, setRole] =
-    useState("Lab Assistant");
-
+  const [role, setRole] = useState("Super Admin");
   const handleLogin = async (e) => {
 
     e.preventDefault();
@@ -100,20 +98,31 @@ console.log(
       // Redirect
 
       if (
-        user.role === "Admin"
-      ) {
+  user.role ===
+  "Super Admin"
+) {
 
-        window.location.href =
-          "/admin";
+  window.location.href =
+    "/super-admin";
 
-      }
+}
 
-      else {
+else if (
+  user.role ===
+  "Admin"
+) {
 
-        window.location.href =
-          "/assistant";
+  window.location.href =
+    "/admin";
 
-      }
+}
+
+else {
+
+  window.location.href =
+    "/assistant";
+
+}
 
     }
 
@@ -214,6 +223,10 @@ console.log(
           "
 
         >
+
+          <option value="Super Admin">
+  Super Admin
+</option>
 
           <option value="Admin">
             Admin

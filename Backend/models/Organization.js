@@ -16,9 +16,48 @@ new mongoose.Schema({
     unique: true,
   },
 
+  adminName: {
+    type: String,
+    default: "",
+  },
+
+  adminUsername: {
+    type: String,
+    default: "",
+  },
+
+  plan: {
+    type: String,
+    enum: [
+      "Free",
+      "Basic",
+      "Premium",
+    ],
+    default: "Free",
+  },
+
   status: {
     type: String,
+    enum: [
+      "Active",
+      "Inactive",
+    ],
     default: "Active",
+  },
+
+  expiryDate: {
+    type: Date,
+    default: null,
+  },
+
+  totalLabs: {
+    type: Number,
+    default: 0,
+  },
+
+  totalPCs: {
+    type: Number,
+    default: 0,
   },
 
   createdAt: {

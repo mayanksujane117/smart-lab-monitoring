@@ -121,8 +121,6 @@ if (
 
     const response =
       await axios.get(
-        "https://smart-lab-monitoring.onrender.com/api/labs"
-      );await axios.get(
   `https://smart-lab-monitoring.onrender.com/api/labs/${organizationId}`
 );
 
@@ -344,15 +342,15 @@ fetchLabs();
 
             return (
               <div
-                onClick={() =>
-                navigate(
-                `/lab/${encodeURIComponent(
-              lab.name
-    )}`
-  )
-}
-                className="cursor-pointer rounded-3xl border border-slate-800 bg-[#0B1220] p-8 hover:border-cyan-500 hover:scale-105 transition-all duration-300"
-              >
+  key={lab._id}
+  onClick={() =>
+    navigate(
+      `/lab/${encodeURIComponent(
+        lab.name
+      )}`
+    )
+  }
+>
                 <h2 className="text-3xl font-bold mb-8">{lab.name}</h2>
                  {lab.name !== "Unassigned" && (
 

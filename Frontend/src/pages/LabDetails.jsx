@@ -64,27 +64,60 @@ const [
 
   useEffect(() => {
 
+    const role =
+  localStorage.getItem(
+    "role"
+  );
+
+if (
+  !role
+) {
+
+  navigate(
+    "/login"
+  );
+
+  return;
+
+}
+
     const fetchPCs = async () => {
 
-      try {
+  try {
 
-        const response = await axios.get(
-          "https://smart-lab-monitoring.onrender.com/api/pcs"
-        );
+    const organizationId =
+      localStorage.getItem(
+        "organizationId"
+      );
 
-        const filteredPCs = response.data.filter(
-          (pc) => pc.lab === decodedLab
-        );
+    const response =
+      await axios.get(
 
-        setPcs(filteredPCs);
+        `https://smart-lab-monitoring.onrender.com/api/pcs/${organizationId}`
 
-      } catch (error) {
+      );
 
-        console.log(error);
+    const filteredPCs =
+      response.data.filter(
 
-      }
+        (pc) =>
+          pc.lab === decodedLab
 
-    };
+      );
+
+    setPcs(
+      filteredPCs
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
     
 

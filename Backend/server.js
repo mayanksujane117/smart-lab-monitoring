@@ -403,6 +403,275 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+
+// ==========================
+// SUPER ADMIN ANALYTICS
+// ==========================
+
+const Organization =
+require("./models/Organization");
+
+app.get(
+  "/api/super-admin/stats",
+  async (req, res) => {
+
+    try {
+
+      const totalOrganizations =
+        await Organization.countDocuments();
+
+      const totalAdmins =
+        await User.countDocuments({
+          role: "Admin",
+        });
+
+      const totalLabs =
+        await Lab.countDocuments();
+
+      const totalPCs =
+        await PC.countDocuments();
+
+      res.json({
+
+        totalOrganizations,
+
+        totalAdmins,
+
+        totalLabs,
+
+        totalPCs,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
+// ==========================
+// GET ALL ORGANIZATIONS
+// ==========================
+
+app.get(
+  "/api/super-admin/organizations",
+  async (req, res) => {
+
+    try {
+
+      const organizations =
+        await Organization.find()
+        .sort({
+          createdAt: -1,
+        });
+
+      res.json(
+        organizations
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
+// ==========================
+// TOGGLE ORGANIZATION STATUS
+// ==========================
+
+app.put(
+  "/api/super-admin/organization/:id/status",
+  async (req, res) => {
+
+    try {
+
+      const org =
+        await Organization.findById(
+          req.params.id
+        );
+
+      if (!org) {
+
+        return res.status(404).json({
+          success: false,
+        });
+
+      }
+
+      org.status =
+
+        org.status === "Active"
+          ? "Inactive"
+          : "Active";
+
+      await org.save();
+
+      res.json({
+
+        success: true,
+
+        status:
+          org.status,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
+// ==========================
+// TOGGLE ORGANIZATION
+// ==========================
+
+app.put(
+  "/api/super-admin/organization/:id/status",
+  async (req, res) => {
+
+    try {
+
+      const org =
+        await Organization.findById(
+          req.params.id
+        );
+
+      if (!org) {
+
+        return res.status(404).json({
+          success: false,
+        });
+
+      }
+
+      org.status =
+
+        org.status === "Active"
+          ? "Inactive"
+          : "Active";
+
+      await org.save();
+
+      res.json({
+
+        success: true,
+
+        status:
+          org.status,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
+// ==========================
+// DELETE ORGANIZATION
+// ==========================
+
+app.delete(
+  "/api/super-admin/organization/:id",
+  async (req, res) => {
+
+    try {
+
+      const org =
+        await Organization.findById(
+          req.params.id
+        );
+
+      if (!org) {
+
+        return res.status(404).json({
+          success: false,
+        });
+
+      }
+
+      await User.deleteMany({
+
+        organizationId:
+          org._id,
+
+      });
+
+      await Lab.deleteMany({
+
+        organizationId:
+          org._id,
+
+      });
+
+      await PC.deleteMany({
+
+        organizationId:
+          org._id,
+
+      });
+
+      await Organization.findByIdAndDelete(
+        org._id
+      );
+
+      res.json({
+
+        success: true,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
 // ==========================
 // FORGOT PASSWORD
 // ==========================
@@ -486,7 +755,11 @@ app.post("/api/heartbeat", async (req, res) => {
 
 const labExists =
 await Lab.findOne({
-  name: lab
+
+  name: lab,
+
+  organizationId,
+
 });
 
 const finalLab =
@@ -497,38 +770,47 @@ labExists
     // UPDATE PC
 
     const updatedPC =
-      await PC.findOneAndUpdate(
+  await PC.findOneAndUpdate(
 
-        {
-  pcName,
-  organizationId,
-},
+    {
+      pcName,
+      organizationId,
+    },
 
-       {
-  organizationId,
+    {
+      organizationId,
 
-  pcName,
+      pcName,
 
-  lab: finalLab,
+      lab: finalLab,
 
-  ipAddress,
+      ipAddress,
 
-  status,
+      status,
 
-  cpuUsage,
+      cpuUsage,
 
-  ramUsage,
+      ramUsage,
 
-  internetSpeed,
+      internetSpeed,
 
-  activeApp,
+      activeApp,
 
-  screenshot,
+      screenshot,
 
-  lastSeen:
-    new Date(),
-},
-      );
+      lastSeen: new Date(),
+
+    },
+
+    {
+
+      new: true,
+
+      upsert: true,
+
+    }
+
+  );
 
     // SAVE LOG
 
@@ -1087,10 +1369,13 @@ app.post("/api/labs", async (req, res) => {
 
 
     const exists =
-      await Lab.findOne({
-        name,
-      });
+await Lab.findOne({
 
+  name,
+
+  organizationId,
+
+});
     if (exists) {
 
       return res.status(400).json({
@@ -1190,11 +1475,14 @@ app.delete(
       // MOVE PCS
 
       await PC.updateMany(
+  {
 
-        {
-          lab: lab.name,
-        },
+    lab: lab.name,
 
+    organizationId:
+      lab.organizationId,
+
+  },
         {
           $set: {
             lab: "Unassigned",
@@ -1275,6 +1563,57 @@ app.get(
         screenshot || ""
 
     });
+
+  }
+);
+
+// ==========================
+// SUPER ADMIN STATS
+// ==========================
+
+app.get(
+  "/api/super-admin/stats",
+  async (req, res) => {
+
+    try {
+
+      const totalOrganizations =
+        await Organization.countDocuments();
+
+      const totalAdmins =
+        await User.countDocuments({
+          role: "Admin",
+        });
+
+      const totalLabs =
+        await Lab.countDocuments();
+
+      const totalPCs =
+        await PC.countDocuments();
+
+      res.json({
+
+        totalOrganizations,
+
+        totalAdmins,
+
+        totalLabs,
+
+        totalPCs,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
 
   }
 );

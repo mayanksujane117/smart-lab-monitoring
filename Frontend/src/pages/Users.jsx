@@ -74,28 +74,29 @@ const [editLabs,
       }
 
     };
+const fetchLabs = async () => {
 
-  const fetchLabs = async () => {
+  try {
 
-    try {
+    const response = await axios.get(
 
-      const response = await axios.get(
+      `https://smart-lab-monitoring.onrender.com/api/labs/${localStorage.getItem(
+        "organizationId"
+      )}`
 
-  `https://smart-lab-monitoring.onrender.com/api/users/${localStorage.getItem(
-    "organizationId"
-  )}`
+    );
 
-);
+    setLabs(response.data);
 
-      setLabs(response.data);
+  }
 
-    } catch (error) {
+  catch (error) {
 
-      console.log(error);
+    console.log(error);
 
-    }
+  }
 
-  };
+};
 
   useEffect(() => {
 

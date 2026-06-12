@@ -11,8 +11,21 @@ router.post("/", async (req, res) => {
   try {
 
     const {
+
       name,
+
       code,
+
+      adminName,
+
+      adminUsername,
+
+      adminPassword,
+
+      plan,
+
+      expiryDate,
+
     } = req.body;
 
     const exists =
@@ -23,9 +36,33 @@ router.post("/", async (req, res) => {
     if (exists) {
 
       return res.status(400).json({
+
         success: false,
+
         message:
           "Organization already exists",
+
+      });
+
+    }
+
+    const existingAdmin =
+      await User.findOne({
+
+        username:
+          adminUsername,
+
+      });
+
+    if (existingAdmin) {
+
+      return res.status(400).json({
+
+        success: false,
+
+        message:
+          "Admin username already exists",
+
       });
 
     }
@@ -37,7 +74,40 @@ router.post("/", async (req, res) => {
 
         code,
 
+        adminName,
+
+        adminUsername,
+
+        plan,
+
+        expiryDate,
+
       });
+
+    const hashedPassword =
+      await bcrypt.hash(
+
+        adminPassword,
+
+        10
+
+      );
+
+    await User.create({
+
+      username:
+        adminUsername,
+
+      password:
+        hashedPassword,
+
+      role:
+        "Admin",
+
+      organizationId:
+        organization._id,
+
+    });
 
     res.json({
 
@@ -54,7 +124,9 @@ router.post("/", async (req, res) => {
     console.log(error);
 
     res.status(500).json({
+
       success: false,
+
     });
 
   }

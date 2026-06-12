@@ -20,13 +20,18 @@ new mongoose.Schema({
     ref:
       "Organization",
 
-    required: true,
+    required:
+      true,
+
+    index:
+      true,
 
   },
 
   createdAt: {
 
-    type: Date,
+    type:
+      Date,
 
     default:
       Date.now,
@@ -34,6 +39,24 @@ new mongoose.Schema({
   },
 
 });
+
+labSchema.index(
+
+  {
+
+    organizationId: 1,
+
+    name: 1,
+
+  },
+
+  {
+
+    unique: true,
+
+  }
+
+);
 
 module.exports =
 mongoose.model(
