@@ -834,35 +834,28 @@ Cancel
   ">
 
     <button
-
-      onClick={() =>
-        toggleOrganization(
-          org._id
-        )
-      }
-
-      className="
-      bg-yellow-600
-      px-3
-      py-2
-      rounded-lg
-      text-sm
-      "
-
-    >
-
-      {
-
-        org.status ===
-        "Active"
-
-          ? "Disable"
-
-          : "Enable"
-
-      }
-
-    </button>
+  onClick={() =>
+    toggleOrganization(org._id)
+  }
+  className={`
+    px-4
+    py-2
+    rounded-xl
+    text-sm
+    font-semibold
+    ${
+      org.status === "Active"
+        ? "bg-green-600 hover:bg-green-700"
+        : "bg-yellow-500 hover:bg-yellow-600 text-black"
+    }
+  `}
+>
+  {
+    org.status === "Active"
+      ? "Enabled"
+      : "Disabled"
+  }
+</button>
 
     <button
 
