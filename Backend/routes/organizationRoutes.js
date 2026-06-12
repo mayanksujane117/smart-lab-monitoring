@@ -3,11 +3,15 @@ const router = express.Router();
 
 const Organization =
 require("../models/Organization");
+
 const User =
 require("../models/User");
 
 const bcrypt =
 require("bcryptjs");
+
+const ActivityLog =
+require("../models/ActivityLog");
 
 // CREATE ORGANIZATION
 
@@ -114,6 +118,16 @@ router.post("/", async (req, res) => {
 
     });
 
+    await ActivityLog.create({
+
+      action:
+        "Organization Created",
+
+      organizationName:
+        name,
+
+    });
+
     res.json({
 
       success: true,
@@ -137,7 +151,6 @@ router.post("/", async (req, res) => {
   }
 
 });
-
 // GET ALL ORGANIZATIONS
 
 router.get("/", async (req, res) => {

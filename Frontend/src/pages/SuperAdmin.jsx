@@ -38,6 +38,11 @@ const [
 ] = useState("");
 
 const [
+  activities,
+  setActivities
+] = useState([]);
+
+const [
   selectedOrg,
   setSelectedOrg
 ] = useState(null);
@@ -176,6 +181,8 @@ async () => {
       "Admin Created"
     );
 
+    fetchActivities();
+
     setShowCreateAdminModal(
       false
     );
@@ -233,6 +240,8 @@ async () => {
       "Organization Created"
     );
 
+    fetchActivities();
+
     setShowCreateModal(
       false
     );
@@ -271,6 +280,7 @@ async (id) => {
     );
 
     fetchOrganizations();
+    fetchActivities();
 
   }
 
@@ -420,6 +430,32 @@ async () => {
 
 };
 
+const fetchActivities =
+async () => {
+
+  try {
+
+    const response =
+      await axios.get(
+
+        "https://smart-lab-monitoring.onrender.com/api/super-admin/activity"
+
+      );
+
+    setActivities(
+      response.data
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
 const fetchOrganizationAnalytics =
 async (organizationId) => {
 
@@ -501,6 +537,8 @@ useEffect(() => {
   fetchStats();
 
   fetchOrganizations();
+
+  fetchActivities();
 
 }, []);
 
@@ -1166,6 +1204,81 @@ font-semibold
     "
 
   />
+
+</div>
+
+<div className="
+bg-[#0B1220]
+border
+border-slate-800
+rounded-3xl
+p-6
+mb-8
+">
+
+  <h2 className="
+  text-2xl
+  font-bold
+  mb-4
+  ">
+
+    Recent Activities
+
+  </h2>
+
+  <div className="
+  space-y-3
+  ">
+
+    {activities.map((log) => (
+
+      <div
+
+        key={log._id}
+
+        className="
+        border-b
+        border-slate-800
+        pb-3
+        "
+
+      >
+
+        <p className="
+        font-semibold
+        ">
+
+          {log.action}
+
+        </p>
+
+        <p className="
+        text-slate-400
+        text-sm
+        ">
+
+          {log.organizationName}
+
+        </p>
+
+        <p className="
+        text-slate-500
+        text-xs
+        ">
+
+          {
+            new Date(
+              log.createdAt
+            ).toLocaleString()
+          }
+
+        </p>
+
+      </div>
+
+    ))}
+
+  </div>
 
 </div>
 

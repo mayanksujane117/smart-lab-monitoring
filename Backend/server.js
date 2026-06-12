@@ -16,8 +16,7 @@ const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
 const auth = require("./middleware/auth");
 const organizationRoutes = require("./routes/organizationRoutes");
-
-
+const ActivityLog = require( "./models/ActivityLog" );
 // ==========================
 // APP
 // ==========================
@@ -458,6 +457,39 @@ app.get(
   }
 );
 
+app.get(
+  "/api/super-admin/activity",
+  async (req, res) => {
+
+    try {
+
+      const logs =
+        await ActivityLog
+          .find()
+          .sort({
+            createdAt: -1
+          })
+          .limit(10);
+
+      res.json(logs);
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+);
+
 // ==========================
 // GET ALL ORGANIZATIONS
 // ==========================
@@ -493,60 +525,6 @@ app.get(
   }
 );
 
-// ==========================
-// TOGGLE ORGANIZATION STATUS
-// ==========================
-
-app.put(
-  "/api/super-admin/organization/:id/status",
-  async (req, res) => {
-
-    try {
-
-      const org =
-        await Organization.findById(
-          req.params.id
-        );
-
-      if (!org) {
-
-        return res.status(404).json({
-          success: false,
-        });
-
-      }
-
-      org.status =
-
-        org.status === "Active"
-          ? "Inactive"
-          : "Active";
-
-      await org.save();
-
-      res.json({
-
-        success: true,
-
-        status:
-          org.status,
-
-      });
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-        success: false,
-      });
-
-    }
-
-  }
-);
 
 // ==========================
 // TOGGLE ORGANIZATION
@@ -578,6 +556,16 @@ app.put(
           : "Active";
 
       await org.save();
+
+      await ActivityLog.create({
+
+ action:
+  `Organization ${org.status}`,
+
+organizationName:
+  org.name,
+
+});
 
       res.json({
 
@@ -1399,6 +1387,16 @@ app.post(
 
       });
 
+      await ActivityLog.create({
+
+  action:
+    "Admin Created",
+
+  organizationName:
+    adminName,
+
+});
+
       res.json({
 
         success: true,
@@ -1800,56 +1798,6 @@ app.get(
   }
 );
 
-// ==========================
-// SUPER ADMIN STATS
-// ==========================
-
-app.get(
-  "/api/super-admin/stats",
-  async (req, res) => {
-
-    try {
-
-      const totalOrganizations =
-        await Organization.countDocuments();
-
-      const totalAdmins =
-        await User.countDocuments({
-          role: "Admin",
-        });
-
-      const totalLabs =
-        await Lab.countDocuments();
-
-      const totalPCs =
-        await PC.countDocuments();
-
-      res.json({
-
-        totalOrganizations,
-
-        totalAdmins,
-
-        totalLabs,
-
-        totalPCs,
-
-      });
-
-    }
-
-    catch (error) {
-
-      console.log(error);
-
-      res.status(500).json({
-        success: false,
-      });
-
-    }
-
-  }
-);
 
 
 // ==========================
