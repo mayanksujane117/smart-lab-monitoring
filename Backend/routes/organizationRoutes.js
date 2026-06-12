@@ -3,6 +3,11 @@ const router = express.Router();
 
 const Organization =
 require("../models/Organization");
+const User =
+require("../models/User");
+
+const bcrypt =
+require("bcryptjs");
 
 // CREATE ORGANIZATION
 
