@@ -33,6 +33,26 @@ const [
 ] = useState([]);
 
 const [
+  selectedOrg,
+  setSelectedOrg
+] = useState(null);
+
+const [
+  showPasswordModal,
+  setShowPasswordModal
+] = useState(false);
+
+const [
+  resetUsername,
+  setResetUsername
+] = useState("");
+
+const [
+  newPassword,
+  setNewPassword
+] = useState("");
+
+const [
   showCreateModal,
   setShowCreateModal
 ] = useState(false);
@@ -153,8 +173,54 @@ async (id) => {
 
 };
 
+const resetAdminPassword =
+async () => {
+
+  try {
+
+    await axios.put(
+
+      "https://smart-lab-monitoring.onrender.com/api/super-admin/reset-password",
+
+      {
+
+        username:
+          resetUsername,
+
+        newPassword,
+
+      }
+
+    );
+
+    alert(
+      "Password Reset Successfully"
+    );
+
+    setShowPasswordModal(
+      false
+    );
+
+    setNewPassword("");
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert(
+      "Failed"
+    );
+
+  }
+
+};
+
 const deleteOrganization =
 async (id) => {
+
+   
 
   const confirmDelete =
     window.confirm(
@@ -781,6 +847,8 @@ Cancel
           "
         >
 
+            
+
           <td className="p-4">
 
             {org.name}
@@ -798,6 +866,8 @@ Cancel
             {org.plan || "Free"}
 
           </td>
+
+          
 
           <td className="p-4">
 
@@ -834,6 +904,28 @@ Cancel
   ">
 
     <button
+
+  onClick={() =>
+    setSelectedOrg(org)
+  }
+
+  className="
+  bg-cyan-600
+  hover:bg-cyan-700
+  px-4
+  py-2
+  rounded-xl
+  text-sm
+  mr-2
+  "
+
+>
+
+  View
+
+</button>
+
+    <button
   onClick={() =>
     toggleOrganization(org._id)
   }
@@ -855,6 +947,35 @@ Cancel
       ? "Enabled"
       : "Disabled"
   }
+</button>
+
+<button
+
+  onClick={() => {
+
+    setResetUsername(
+      org.adminUsername
+    );
+
+    setShowPasswordModal(
+      true
+    );
+
+  }}
+
+  className="
+  bg-purple-600
+  hover:bg-purple-700
+  px-3
+  py-2
+  rounded-lg
+  text-sm
+  "
+
+>
+
+  Reset Password
+
 </button>
 
     <button
@@ -894,6 +1015,281 @@ Cancel
 </div>
 
         </div>
+
+        {
+  showPasswordModal && (
+
+    <div className="
+    fixed
+    inset-0
+    bg-black/70
+    flex
+    items-center
+    justify-center
+    z-50
+    ">
+
+      <div className="
+      bg-[#0B1220]
+      p-8
+      rounded-3xl
+      w-[450px]
+      ">
+
+        <h2 className="
+        text-3xl
+        font-bold
+        mb-6
+        ">
+
+          Reset Password
+
+        </h2>
+
+        <input
+
+          value={
+            resetUsername
+          }
+
+          disabled
+
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-800
+          mb-4
+          "
+
+        />
+
+        <input
+
+          type="password"
+
+          placeholder="New Password"
+
+          value={
+            newPassword
+          }
+
+          onChange={(e)=>
+
+            setNewPassword(
+              e.target.value
+            )
+
+          }
+
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-6
+          "
+
+        />
+
+        <div className="
+        flex
+        gap-3
+        ">
+
+          <button
+
+            onClick={
+              resetAdminPassword
+            }
+
+            className="
+            flex-1
+            bg-purple-600
+            py-3
+            rounded-xl
+            "
+
+          >
+
+            Save
+
+          </button>
+
+          <button
+
+            onClick={() =>
+
+              setShowPasswordModal(
+                false
+              )
+
+            }
+
+            className="
+            flex-1
+            bg-slate-700
+            py-3
+            rounded-xl
+            "
+
+          >
+
+            Cancel
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  )
+}
+
+        {
+  selectedOrg && (
+
+    <div className="
+    fixed
+    inset-0
+    bg-black/70
+    flex
+    items-center
+    justify-center
+    z-50
+    ">
+
+      <div className="
+      bg-[#0B1220]
+      w-[700px]
+      rounded-3xl
+      p-8
+      border
+      border-slate-800
+      ">
+
+        <div className="
+        flex
+        justify-between
+        mb-6
+        ">
+
+          <h2 className="
+          text-3xl
+          font-bold
+          ">
+
+            Organization Details
+
+          </h2>
+
+          <button
+
+            onClick={() =>
+              setSelectedOrg(null)
+            }
+
+            className="
+            text-red-400
+            text-xl
+            "
+
+          >
+
+            ✕
+
+          </button>
+
+        </div>
+
+        <div className="
+        grid
+        grid-cols-2
+        gap-6
+        ">
+
+          <div>
+            <p className="text-slate-400">
+              Organization
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.name}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              Code
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.code}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              Admin
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.adminName}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              Username
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.adminUsername}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              Plan
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.plan}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              Status
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.status}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              Labs
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.totalLabs}
+            </h3>
+          </div>
+
+          <div>
+            <p className="text-slate-400">
+              PCs
+            </p>
+            <h3 className="text-xl font-bold">
+              {selectedOrg.totalPCs}
+            </h3>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  )
+}
 
       </div>
 

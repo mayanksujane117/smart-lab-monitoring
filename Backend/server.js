@@ -673,6 +673,86 @@ app.delete(
 );
 
 // ==========================
+// RESET ADMIN PASSWORD
+// ==========================
+
+app.put(
+  "/api/super-admin/reset-password",
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        username,
+
+        newPassword,
+
+      } = req.body;
+
+      const user =
+        await User.findOne({
+
+          username,
+
+          role: "Admin",
+
+        });
+
+      if (!user) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Admin not found",
+
+        });
+
+      }
+
+      const hashedPassword =
+        await bcrypt.hash(
+
+          newPassword,
+
+          10
+
+        );
+
+      user.password =
+        hashedPassword;
+
+      await user.save();
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Password Reset Successfully",
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+);
+
+// ==========================
 // FORGOT PASSWORD
 // ==========================
 
