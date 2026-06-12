@@ -508,6 +508,185 @@ useEffect(() => {
 
     <>
 
+    {
+  showCreateModal && (
+
+    <div className="
+    fixed
+    inset-0
+    bg-black/70
+    flex
+    items-center
+    justify-center
+    z-50
+    ">
+
+      <div className="
+      bg-[#0B1220]
+      p-8
+      rounded-3xl
+      w-[600px]
+      ">
+
+        <h2 className="
+        text-3xl
+        font-bold
+        mb-6
+        ">
+          Create Organization
+        </h2>
+
+        <input
+          placeholder="Organization Name"
+          value={orgName}
+          onChange={(e)=>
+            setOrgName(e.target.value)
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+        />
+
+        <input
+          placeholder="Organization Code"
+          value={orgCode}
+          onChange={(e)=>
+            setOrgCode(e.target.value)
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+        />
+
+        <input
+          placeholder="Admin Name"
+          value={adminName}
+          onChange={(e)=>
+            setAdminName(e.target.value)
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+        />
+
+        <input
+          placeholder="Admin Username"
+          value={adminUsername}
+          onChange={(e)=>
+            setAdminUsername(e.target.value)
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+        />
+
+        <input
+          type="password"
+          placeholder="Admin Password"
+          value={adminPassword}
+          onChange={(e)=>
+            setAdminPassword(e.target.value)
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+        />
+
+        <select
+          value={plan}
+          onChange={(e)=>
+            setPlan(e.target.value)
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+        >
+          <option>Free</option>
+          <option>Basic</option>
+          <option>Premium</option>
+        </select>
+
+        <input
+          type="date"
+          value={expiryDate}
+          onChange={(e)=>
+            setExpiryDate(
+              e.target.value
+            )
+          }
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-6
+          "
+        />
+
+        <div className="
+        flex
+        gap-3
+        ">
+
+          <button
+            onClick={createOrganization}
+            className="
+            flex-1
+            bg-cyan-600
+            py-3
+            rounded-xl
+            "
+          >
+            Create
+          </button>
+
+          <button
+            onClick={()=>
+              setShowCreateModal(false)
+            }
+            className="
+            flex-1
+            bg-slate-700
+            py-3
+            rounded-xl
+            "
+          >
+            Cancel
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  )
+}
+
 {
   showCreateAdminModal && (
 
