@@ -490,6 +490,46 @@ app.get(
   }
 );
 
+app.get(
+  "/api/super-admin/admins",
+  async (req, res) => {
+
+    try {
+
+      const admins =
+        await User.find({
+
+          role: "Admin",
+
+        }).populate(
+
+          "organizationId",
+
+          "name"
+
+        );
+
+      res.json(
+        admins
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+);
+
 // ==========================
 // GET ALL ORGANIZATIONS
 // ==========================

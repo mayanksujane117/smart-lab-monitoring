@@ -42,6 +42,12 @@ const [
   setActivities
 ] = useState([]);
 
+
+const [
+  admins,
+  setAdmins
+] = useState([]);
+
 const [
   selectedOrg,
   setSelectedOrg
@@ -182,6 +188,7 @@ async () => {
     );
 
     fetchActivities();
+    fetchAdmins();
 
     setShowCreateAdminModal(
       false
@@ -456,6 +463,32 @@ async () => {
 
 };
 
+const fetchAdmins =
+async () => {
+
+  try {
+
+    const response =
+      await axios.get(
+
+        "https://smart-lab-monitoring.onrender.com/api/super-admin/admins"
+
+      );
+
+    setAdmins(
+      response.data
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
 const fetchOrganizationAnalytics =
 async (organizationId) => {
 
@@ -539,6 +572,8 @@ useEffect(() => {
   fetchOrganizations();
 
   fetchActivities();
+
+  fetchAdmins();
 
 }, []);
 
@@ -1531,6 +1566,8 @@ mb-8
 
   </div>
 
+ 
+
 </td>
 
         </tr>
@@ -1544,6 +1581,96 @@ mb-8
 </div>
 
         </div>
+
+        <div className="
+bg-[#0B1220]
+border
+border-slate-800
+rounded-3xl
+overflow-hidden
+mt-8
+">
+
+  <div className="
+  px-6
+  py-5
+  border-b
+  border-slate-800
+  ">
+
+    <h2 className="
+    text-2xl
+    font-bold
+    ">
+
+      Admin Management
+
+    </h2>
+
+  </div>
+
+  <div className="overflow-x-auto">
+
+    <table className="w-full">
+
+      <thead>
+
+        <tr className="
+        border-b
+        border-slate-800
+        ">
+
+          <th className="p-4 text-left">
+            Username
+          </th>
+
+          <th className="p-4 text-left">
+            Organization
+          </th>
+
+          <th className="p-4 text-left">
+            Role
+          </th>
+
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        {admins.map((admin) => (
+
+          <tr
+            key={admin._id}
+            className="
+            border-b
+            border-slate-800
+            "
+          >
+
+            <td className="p-4">
+              {admin.username}
+            </td>
+
+            <td className="p-4">
+              {admin.organizationId?.name}
+            </td>
+
+            <td className="p-4">
+              {admin.role}
+            </td>
+
+          </tr>
+
+        ))}
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>
 
         {
   showPasswordModal && (
