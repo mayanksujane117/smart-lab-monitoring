@@ -1270,6 +1270,159 @@ setInterval(async () => {
 }, 5000);
 
 // ==========================
+// ORGANIZATION USER STATS
+// ==========================
+
+app.get(
+  "/api/super-admin/user-stats/:organizationId",
+  async (req, res) => {
+
+    try {
+
+      const organizationId =
+        req.params.organizationId;
+
+      const totalUsers =
+        await User.countDocuments({
+
+          organizationId,
+
+        });
+
+      const admins =
+        await User.countDocuments({
+
+          organizationId,
+
+          role: "Admin",
+
+        });
+
+      const labAssistants =
+        await User.countDocuments({
+
+          organizationId,
+
+          role: "Lab Assistant",
+
+        });
+
+      res.json({
+
+        totalUsers,
+
+        admins,
+
+        labAssistants,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+);
+
+// ==========================
+// CREATE ADMIN
+// ==========================
+
+app.post(
+  "/api/super-admin/create-admin",
+  async (req, res) => {
+
+    try {
+
+      const {
+
+        adminName,
+
+        username,
+
+        password,
+
+        organizationId,
+
+      } = req.body;
+
+      const existingUser =
+        await User.findOne({
+
+          username,
+
+        });
+
+      if (existingUser) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Username already exists",
+
+        });
+
+      }
+
+      const hashedPassword =
+        await bcrypt.hash(
+
+          password,
+
+          10
+
+        );
+
+      await User.create({
+
+        username,
+
+        password:
+          hashedPassword,
+
+        role:
+          "Admin",
+
+        organizationId,
+
+      });
+
+      res.json({
+
+        success: true,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+
+        success: false,
+
+      });
+
+    }
+
+  }
+);
+
+// ==========================
 // GET USERS
 // ==========================
 

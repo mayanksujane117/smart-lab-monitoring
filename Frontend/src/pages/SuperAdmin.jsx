@@ -55,6 +55,12 @@ const [
 
   offlinePCs: 0,
 
+  totalUsers: 0,
+
+  admins: 0,
+
+  labAssistants: 0,
+
 });
 
 const [
@@ -76,6 +82,31 @@ const [
   showCreateModal,
   setShowCreateModal
 ] = useState(false);
+
+const [
+  showCreateAdminModal,
+  setShowCreateAdminModal
+] = useState(false);
+
+const [
+  adminOrgId,
+  setAdminOrgId
+] = useState("");
+
+const [
+  newAdminName,
+  setNewAdminName
+] = useState("");
+
+const [
+  newAdminUsername,
+  setNewAdminUsername
+] = useState("");
+
+const [
+  newAdminPassword,
+  setNewAdminPassword
+] = useState("");
 
 const [orgName,
   setOrgName] =
@@ -113,6 +144,59 @@ const [plan,
     navigate("/login");
 
   };
+
+  const createAdmin =
+async () => {
+
+  try {
+
+    await axios.post(
+
+      "https://smart-lab-monitoring.onrender.com/api/super-admin/create-admin",
+
+      {
+
+        adminName:
+          newAdminName,
+
+        username:
+          newAdminUsername,
+
+        password:
+          newAdminPassword,
+
+        organizationId:
+          adminOrgId,
+
+      }
+
+    );
+
+    alert(
+      "Admin Created"
+    );
+
+    setShowCreateAdminModal(
+      false
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert(
+
+      error.response?.data?.message ||
+
+      "Failed"
+
+    );
+
+  }
+
+};
 
   const createOrganization =
 async () => {
@@ -349,16 +433,32 @@ async (organizationId) => {
       );
 
     const pcsResponse =
-      await axios.get(
+  await axios.get(
 
-        `https://smart-lab-monitoring.onrender.com/api/pcs/${organizationId}`
+    `https://smart-lab-monitoring.onrender.com/api/pcs/${organizationId}`
 
-      );
+  );
+
+const usersResponse =
+  await axios.get(
+
+    `https://smart-lab-monitoring.onrender.com/api/super-admin/user-stats/${organizationId}`
+
+  );
 
     const pcs =
       pcsResponse.data;
 
     setOrgAnalytics({
+
+        totalUsers:
+  usersResponse.data.totalUsers,
+
+admins:
+  usersResponse.data.admins,
+
+labAssistants:
+  usersResponse.data.labAssistants,
 
       totalLabs:
         labsResponse.data.length,
@@ -861,20 +961,26 @@ Cancel
 
           <button
 
-            className="
-            bg-slate-800
-            hover:bg-slate-700
-            px-6
-            py-3
-            rounded-2xl
-            font-semibold
-            "
+onClick={() =>
+  setShowCreateAdminModal(
+    true
+  )
+}
 
-          >
+className="
+bg-slate-800
+hover:bg-slate-700
+px-6
+py-3
+rounded-2xl
+font-semibold
+"
 
-            + Create Admin
+>
 
-          </button>
++ Create Admin
+
+</button>
 
         </div>
 
@@ -1486,23 +1592,87 @@ Cancel
             </h3>
           </div>
 
-          <div>
-            <p className="text-slate-400">
-              Labs
-            </p>
-            <h3 className="text-xl font-bold">
-              {selectedOrg.totalLabs}
-            </h3>
-          </div>
+         <div>
+  <p className="text-slate-400">
+    Total Labs
+  </p>
 
-          <div>
-            <p className="text-slate-400">
-              PCs
-            </p>
-            <h3 className="text-xl font-bold">
-              {selectedOrg.totalPCs}
-            </h3>
-          </div>
+  <h3 className="text-xl font-bold">
+    {orgAnalytics.totalLabs}
+  </h3>
+</div>
+
+<div>
+  <p className="text-slate-400">
+    Total PCs
+  </p>
+
+  <h3 className="text-xl font-bold">
+    {orgAnalytics.totalPCs}
+  </h3>
+</div>
+
+<div>
+  <p className="text-slate-400">
+    Online PCs
+  </p>
+
+  <h3 className="text-xl font-bold text-green-400">
+    {orgAnalytics.onlinePCs}
+  </h3>
+</div>
+
+<div>
+  <p className="text-slate-400">
+    Offline PCs
+  </p>
+
+  <h3 className="text-xl font-bold text-red-400">
+    {orgAnalytics.offlinePCs}
+  </h3>
+</div>
+
+<div>
+
+  <p className="text-slate-400">
+    Total Users
+  </p>
+
+  <h3 className="text-xl font-bold">
+
+    {orgAnalytics.totalUsers}
+
+  </h3>
+
+</div>
+
+<div>
+
+  <p className="text-slate-400">
+    Admins
+  </p>
+
+  <h3 className="text-xl font-bold text-cyan-400">
+
+    {orgAnalytics.admins}
+
+  </h3>
+
+</div>
+
+<div>
+
+  <p className="text-slate-400">
+    Lab Assistants
+  </p>
+
+  <h3 className="text-xl font-bold text-yellow-400">
+
+    {orgAnalytics.labAssistants}
+
+  </h3>
+
+</div>
 
         </div>
 
