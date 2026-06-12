@@ -32,6 +32,35 @@ const [
   setOrganizations
 ] = useState([]);
 
+const [
+  showCreateModal,
+  setShowCreateModal
+] = useState(false);
+
+const [orgName,
+  setOrgName] =
+  useState("");
+
+const [orgCode,
+  setOrgCode] =
+  useState("");
+
+const [adminName,
+  setAdminName] =
+  useState("");
+
+const [adminUsername,
+  setAdminUsername] =
+  useState("");
+
+const [adminPassword,
+  setAdminPassword] =
+  useState("");
+
+const [plan,
+  setPlan] =
+  useState("Free");
+
   const logout = () => {
 
     localStorage.clear();
@@ -40,8 +69,69 @@ const [
 
   };
 
+  const createOrganization =
+async () => {
+
+  try {
+
+    await axios.post(
+
+      "https://smart-lab-monitoring.onrender.com/api/organizations",
+
+      {
+
+        name:
+          orgName,
+
+        code:
+          orgCode,
+
+        adminName,
+
+        adminUsername,
+
+        adminPassword,
+
+        plan,
+
+      }
+
+    );
+
+    alert(
+      "Organization Created"
+    );
+
+    setShowCreateModal(
+      false
+    );
+
+    fetchOrganizations();
+
+    fetchStats();
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert(
+
+      error.response?.data?.message ||
+
+      "Failed"
+
+    );
+
+  }
+
+};
+
   const fetchStats =
 async () => {
+
+    
 
   try {
 
@@ -68,6 +158,66 @@ async () => {
 
 const fetchOrganizations =
 async () => {
+
+    const toggleOrganization =
+async (id) => {
+
+  try {
+
+    await axios.put(
+
+      `https://smart-lab-monitoring.onrender.com/api/super-admin/organization/${id}/status`
+
+    );
+
+    fetchOrganizations();
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert(
+      "Failed"
+    );
+
+  }
+
+};
+
+const deleteOrganization =
+async (id) => {
+
+  const confirmDelete =
+    window.confirm(
+      "Delete Organization?"
+    );
+
+  if (!confirmDelete)
+    return;
+
+  try {
+
+    await axios.delete(
+
+      `https://smart-lab-monitoring.onrender.com/api/super-admin/organization/${id}`
+
+    );
+
+    fetchOrganizations();
+
+    fetchStats();
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
 
   try {
 
@@ -101,6 +251,205 @@ useEffect(() => {
 }, []);
 
   return (
+
+    <>
+
+{showCreateModal && (
+
+<div className="
+fixed
+inset-0
+bg-black/70
+flex
+items-center
+justify-center
+z-50
+">
+
+<div className="
+bg-[#0B1220]
+p-8
+rounded-3xl
+w-[500px]
+">
+
+<h2 className="
+text-3xl
+font-bold
+mb-6
+">
+
+Create Organization
+
+</h2>
+
+<input
+placeholder="Organization Name"
+value={orgName}
+onChange={(e)=>
+setOrgName(
+e.target.value
+)}
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-4
+"
+/>
+
+<input
+placeholder="Organization Code"
+value={orgCode}
+onChange={(e)=>
+setOrgCode(
+e.target.value
+)}
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-4
+"
+/>
+
+<input
+placeholder="Admin Name"
+value={adminName}
+onChange={(e)=>
+setAdminName(
+e.target.value
+)}
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-4
+"
+/>
+
+<input
+placeholder="Admin Username"
+value={adminUsername}
+onChange={(e)=>
+setAdminUsername(
+e.target.value
+)}
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-4
+"
+/>
+
+<input
+placeholder="Admin Password"
+value={adminPassword}
+onChange={(e)=>
+setAdminPassword(
+e.target.value
+)}
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-4
+"
+/>
+
+<select
+
+value={plan}
+
+onChange={(e)=>
+setPlan(
+e.target.value
+)}
+
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-6
+"
+
+>
+
+<option>
+Free
+</option>
+
+<option>
+Basic
+</option>
+
+<option>
+Premium
+</option>
+
+</select>
+
+<div className="
+flex
+gap-3
+">
+
+<button
+
+onClick={
+createOrganization
+}
+
+className="
+flex-1
+bg-cyan-600
+py-3
+rounded-xl
+"
+
+>
+
+Create
+
+</button>
+
+<button
+
+onClick={()=>
+setShowCreateModal(
+false
+)
+}
+
+className="
+flex-1
+bg-slate-700
+py-3
+rounded-xl
+"
+
+>
+
+Cancel
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+)}
+
+
 
     <div className="min-h-screen bg-[#050816] text-white">
 
@@ -314,20 +663,26 @@ useEffect(() => {
 
           <button
 
-            className="
-            bg-cyan-600
-            hover:bg-cyan-700
-            px-6
-            py-3
-            rounded-2xl
-            font-semibold
-            "
+  onClick={() =>
+    setShowCreateModal(
+      true
+    )
+  }
 
-          >
+  className="
+  bg-cyan-600
+  hover:bg-cyan-700
+  px-6
+  py-3
+  rounded-2xl
+  font-semibold
+  "
 
-            + Create Organization
+>
 
-          </button>
+  + Create Organization
+
+</button>
 
           <button
 
@@ -376,22 +731,180 @@ useEffect(() => {
 
           </div>
 
-          <div className="p-6">
+          <div className="overflow-x-auto">
 
-            <p className="text-slate-400">
+  <table className="w-full">
 
-              No organizations found
+    <thead>
 
-            </p>
+      <tr className="border-b border-slate-800">
 
-          </div>
+        <th className="text-left p-4">
+          Organization
+        </th>
+
+        <th className="text-left p-4">
+          Code
+        </th>
+
+        <th className="text-left p-4">
+          Plan
+        </th>
+
+        <th className="text-left p-4">
+          Status
+        </th>
+
+        <th className="text-left p-4">
+          Created
+        </th>
+
+        <th className="text-left p-4">
+  Actions
+</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      {organizations.map((org) => (
+
+        <tr
+          key={org._id}
+          className="
+          border-b
+          border-slate-800
+          hover:bg-slate-900
+          "
+        >
+
+          <td className="p-4">
+
+            {org.name}
+
+          </td>
+
+          <td className="p-4">
+
+            {org.code}
+
+          </td>
+
+          <td className="p-4">
+
+            {org.plan || "Free"}
+
+          </td>
+
+          <td className="p-4">
+
+            <span
+              className={
+                org.status ===
+                "Active"
+
+                  ? "text-green-400"
+
+                  : "text-red-400"
+              }
+            >
+
+              {org.status}
+
+            </span>
+
+          </td>
+
+          <td className="p-4">
+
+            {new Date(
+              org.createdAt
+            ).toLocaleDateString()}
+
+          </td>
+
+        <td className="p-4">
+
+  <div className="
+  flex
+  gap-2
+  ">
+
+    <button
+
+      onClick={() =>
+        toggleOrganization(
+          org._id
+        )
+      }
+
+      className="
+      bg-yellow-600
+      px-3
+      py-2
+      rounded-lg
+      text-sm
+      "
+
+    >
+
+      {
+
+        org.status ===
+        "Active"
+
+          ? "Disable"
+
+          : "Enable"
+
+      }
+
+    </button>
+
+    <button
+
+      onClick={() =>
+        deleteOrganization(
+          org._id
+        )
+      }
+
+      className="
+      bg-red-600
+      px-3
+      py-2
+      rounded-lg
+      text-sm
+      "
+
+    >
+
+      Delete
+
+    </button>
+
+  </div>
+
+</td>
+
+        </tr>
+
+      ))}
+
+    </tbody>
+
+  </table>
+
+</div>
 
         </div>
 
       </div>
 
     </div>
-
+      </>
   );
 
 }
