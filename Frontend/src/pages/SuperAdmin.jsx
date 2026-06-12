@@ -33,9 +33,29 @@ const [
 ] = useState([]);
 
 const [
+  searchTerm,
+  setSearchTerm
+] = useState("");
+
+const [
   selectedOrg,
   setSelectedOrg
 ] = useState(null);
+
+const [
+  orgAnalytics,
+  setOrgAnalytics
+] = useState({
+
+  totalLabs: 0,
+
+  totalPCs: 0,
+
+  onlinePCs: 0,
+
+  offlinePCs: 0,
+
+});
 
 const [
   showPasswordModal,
@@ -81,6 +101,11 @@ const [plan,
   setPlan] =
   useState("Free");
 
+  const [
+  expiryDate,
+  setExpiryDate
+] = useState("");
+
   const logout = () => {
 
     localStorage.clear();
@@ -113,6 +138,8 @@ async () => {
         adminPassword,
 
         plan,
+
+        expiryDate,
 
       }
 
@@ -309,6 +336,66 @@ async () => {
 
 };
 
+const fetchOrganizationAnalytics =
+async (organizationId) => {
+
+  try {
+
+    const labsResponse =
+      await axios.get(
+
+        `https://smart-lab-monitoring.onrender.com/api/labs/${organizationId}`
+
+      );
+
+    const pcsResponse =
+      await axios.get(
+
+        `https://smart-lab-monitoring.onrender.com/api/pcs/${organizationId}`
+
+      );
+
+    const pcs =
+      pcsResponse.data;
+
+    setOrgAnalytics({
+
+      totalLabs:
+        labsResponse.data.length,
+
+      totalPCs:
+        pcs.length,
+
+      onlinePCs:
+        pcs.filter(
+
+          (pc) =>
+            pc.status ===
+            "Online"
+
+        ).length,
+
+      offlinePCs:
+        pcs.filter(
+
+          (pc) =>
+            pc.status ===
+            "Offline"
+
+        ).length,
+
+    });
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
 useEffect(() => {
 
   fetchStats();
@@ -444,7 +531,7 @@ w-full
 p-4
 rounded-xl
 bg-slate-900
-mb-6
+mb-4
 "
 
 >
@@ -463,6 +550,27 @@ Premium
 
 </select>
 
+<input
+
+type="date"
+
+value={expiryDate}
+
+onChange={(e)=>
+  setExpiryDate(
+    e.target.value
+  )
+}
+
+className="
+w-full
+p-4
+rounded-xl
+bg-slate-900
+mb-6
+"
+
+/>
 <div className="
 flex
 gap-3
@@ -770,6 +878,36 @@ Cancel
 
         </div>
 
+        <div className="mb-6">
+
+  <input
+
+    type="text"
+
+    placeholder="Search Organization..."
+
+    value={searchTerm}
+
+    onChange={(e)=>
+      setSearchTerm(
+        e.target.value
+      )
+    }
+
+    className="
+    w-full
+    p-4
+    rounded-2xl
+    bg-[#0B1220]
+    border
+    border-slate-800
+    outline-none
+    "
+
+  />
+
+</div>
+
         {/* ORGANIZATION TABLE */}
 
         <div className="
@@ -836,8 +974,19 @@ Cancel
 
     <tbody>
 
-      {organizations.map((org) => (
+{organizations
 
+.filter((org) =>
+
+  org.name
+    .toLowerCase()
+    .includes(
+      searchTerm.toLowerCase()
+    )
+
+)
+
+.map((org) => (
         <tr
           key={org._id}
           className="
@@ -905,9 +1054,15 @@ Cancel
 
     <button
 
-  onClick={() =>
-    setSelectedOrg(org)
-  }
+  onClick={() => {
+
+    setSelectedOrg(org);
+
+    fetchOrganizationAnalytics(
+      org._id
+    );
+
+  }}
 
   className="
   bg-cyan-600
@@ -1254,6 +1409,73 @@ Cancel
               {selectedOrg.plan}
             </h3>
           </div>
+
+          <div>
+  <p className="text-slate-400">
+    Expiry Date
+  </p>
+
+  <h3 className="text-xl font-bold">
+
+    {
+
+      selectedOrg.expiryDate
+
+        ? new Date(
+            selectedOrg.expiryDate
+          ).toLocaleDateString()
+
+        : "No Expiry"
+
+    }
+
+  </h3>
+
+</div>
+
+<div>
+
+  <p className="text-slate-400">
+    Days Remaining
+  </p>
+
+  <h3 className="text-xl font-bold">
+
+    {
+
+      selectedOrg.expiryDate
+
+        ? Math.max(
+
+            0,
+
+            Math.ceil(
+
+              (
+
+                new Date(
+                  selectedOrg.expiryDate
+                ) -
+
+                new Date()
+
+              ) /
+
+              (1000 * 60 * 60 * 24)
+
+            )
+
+          )
+
+        : "-"
+
+    }
+
+    Days
+
+  </h3>
+
+</div>
 
           <div>
             <p className="text-slate-400">
