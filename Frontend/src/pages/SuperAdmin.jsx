@@ -508,222 +508,198 @@ useEffect(() => {
 
     <>
 
-{showCreateModal && (
+{
+  showCreateAdminModal && (
 
-<div className="
-fixed
-inset-0
-bg-black/70
-flex
-items-center
-justify-center
-z-50
-">
+    <div className="
+    fixed
+    inset-0
+    bg-black/70
+    flex
+    items-center
+    justify-center
+    z-50
+    ">
 
-<div className="
-bg-[#0B1220]
-p-8
-rounded-3xl
-w-[500px]
-">
+      <div className="
+      bg-[#0B1220]
+      p-8
+      rounded-3xl
+      w-[500px]
+      ">
 
-<h2 className="
-text-3xl
-font-bold
-mb-6
-">
+        <h2 className="
+        text-3xl
+        font-bold
+        mb-6
+        ">
 
-Create Organization
+          Create Admin
 
-</h2>
+        </h2>
 
-<input
-placeholder="Organization Name"
-value={orgName}
-onChange={(e)=>
-setOrgName(
-e.target.value
-)}
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-4
-"
-/>
+        <input
 
-<input
-placeholder="Organization Code"
-value={orgCode}
-onChange={(e)=>
-setOrgCode(
-e.target.value
-)}
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-4
-"
-/>
+          placeholder="Admin Name"
 
-<input
-placeholder="Admin Name"
-value={adminName}
-onChange={(e)=>
-setAdminName(
-e.target.value
-)}
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-4
-"
-/>
+          value={newAdminName}
 
-<input
-placeholder="Admin Username"
-value={adminUsername}
-onChange={(e)=>
-setAdminUsername(
-e.target.value
-)}
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-4
-"
-/>
+          onChange={(e)=>
+            setNewAdminName(
+              e.target.value
+            )
+          }
 
-<input
-placeholder="Admin Password"
-value={adminPassword}
-onChange={(e)=>
-setAdminPassword(
-e.target.value
-)}
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-4
-"
-/>
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
 
-<select
+        />
 
-value={plan}
+        <input
 
-onChange={(e)=>
-setPlan(
-e.target.value
-)}
+          placeholder="Username"
 
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-4
-"
+          value={newAdminUsername}
 
->
+          onChange={(e)=>
+            setNewAdminUsername(
+              e.target.value
+            )
+          }
 
-<option>
-Free
-</option>
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
 
-<option>
-Basic
-</option>
+        />
 
-<option>
-Premium
-</option>
+        <input
 
-</select>
+          type="password"
 
-<input
+          placeholder="Password"
 
-type="date"
+          value={newAdminPassword}
 
-value={expiryDate}
+          onChange={(e)=>
+            setNewAdminPassword(
+              e.target.value
+            )
+          }
 
-onChange={(e)=>
-  setExpiryDate(
-    e.target.value
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-4
+          "
+
+        />
+
+        <select
+
+          value={adminOrgId}
+
+          onChange={(e)=>
+            setAdminOrgId(
+              e.target.value
+            )
+          }
+
+          className="
+          w-full
+          p-4
+          rounded-xl
+          bg-slate-900
+          mb-6
+          "
+
+        >
+
+          <option value="">
+            Select Organization
+          </option>
+
+          {organizations.map(
+            (org) => (
+
+              <option
+                key={org._id}
+                value={org._id}
+              >
+
+                {org.name}
+
+              </option>
+
+            )
+          )}
+
+        </select>
+
+        <div className="
+        flex
+        gap-3
+        ">
+
+          <button
+
+            onClick={
+              createAdmin
+            }
+
+            className="
+            flex-1
+            bg-cyan-600
+            py-3
+            rounded-xl
+            "
+
+          >
+
+            Create
+
+          </button>
+
+          <button
+
+            onClick={()=>
+              setShowCreateAdminModal(
+                false
+              )
+            }
+
+            className="
+            flex-1
+            bg-slate-700
+            py-3
+            rounded-xl
+            "
+
+          >
+
+            Cancel
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
   )
 }
-
-className="
-w-full
-p-4
-rounded-xl
-bg-slate-900
-mb-6
-"
-
-/>
-<div className="
-flex
-gap-3
-">
-
-<button
-
-onClick={
-createOrganization
-}
-
-className="
-flex-1
-bg-cyan-600
-py-3
-rounded-xl
-"
-
->
-
-Create
-
-</button>
-
-<button
-
-onClick={()=>
-setShowCreateModal(
-false
-)
-}
-
-className="
-flex-1
-bg-slate-700
-py-3
-rounded-xl
-"
-
->
-
-Cancel
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-)}
-
 
 
     <div className="min-h-screen bg-[#050816] text-white">
