@@ -37,13 +37,14 @@ new mongoose.Schema({
   },
 
   status: {
-    type: String,
-    enum: [
-      "Active",
-      "Inactive",
-    ],
-    default: "Active",
-  },
+  type: String,
+  enum: [
+    "Active",
+    "Inactive",
+    "Expired",
+  ],
+  default: "Active",
+},
 
   expiryDate: {
     type: Date,

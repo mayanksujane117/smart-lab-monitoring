@@ -409,6 +409,45 @@ async () => {
 
 };
 
+const deleteAdmin =
+async (id) => {
+
+  const confirmDelete =
+    window.confirm(
+      "Delete Admin?"
+    );
+
+  if (!confirmDelete)
+    return;
+
+  try {
+
+    await axios.delete(
+
+      `https://smart-lab-monitoring.onrender.com/api/super-admin/admin/${id}`
+
+    );
+
+    fetchAdmins();
+
+    alert(
+      "Admin Deleted"
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+    alert(
+      "Failed"
+    );
+
+  }
+
+};
+
 const fetchOrganizations =
 async () => {
 
@@ -1430,15 +1469,20 @@ mb-8
           <td className="p-4">
 
             <span
-              className={
-                org.status ===
-                "Active"
+  className={
 
-                  ? "text-green-400"
+    org.status === "Active"
 
-                  : "text-red-400"
-              }
-            >
+      ? "text-green-400"
+
+      : org.status === "Expired"
+
+      ? "text-red-500"
+
+      : "text-yellow-400"
+
+  }
+>
 
               {org.status}
 
@@ -1507,10 +1551,12 @@ mb-8
   `}
 >
   {
-    org.status === "Active"
-      ? "Enabled"
-      : "Disabled"
-  }
+  org.status === "Active"
+    ? "Enabled"
+    : org.status === "Expired"
+    ? "Expired"
+    : "Disabled"
+}
 </button>
 
 <button
@@ -1632,6 +1678,10 @@ mt-8
             Role
           </th>
 
+          <th className="p-4 text-left">
+  Actions
+</th>
+
         </tr>
 
       </thead>
@@ -1659,6 +1709,68 @@ mt-8
             <td className="p-4">
               {admin.role}
             </td>
+            <td className="p-4">
+
+  <div className="
+  flex
+  gap-2
+  ">
+
+    <button
+
+      onClick={() => {
+
+        setResetUsername(
+          admin.username
+        );
+
+        setShowPasswordModal(
+          true
+        );
+
+      }}
+
+      className="
+      bg-purple-600
+      hover:bg-purple-700
+      px-3
+      py-2
+      rounded-lg
+      text-sm
+      "
+
+    >
+
+      Reset
+
+    </button>
+
+    <button
+
+      onClick={() =>
+        deleteAdmin(
+          admin._id
+        )
+      }
+
+      className="
+      bg-red-600
+      hover:bg-red-700
+      px-3
+      py-2
+      rounded-lg
+      text-sm
+      "
+
+    >
+
+      Delete
+
+    </button>
+
+  </div>
+
+</td>
 
           </tr>
 

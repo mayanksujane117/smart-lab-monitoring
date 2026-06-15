@@ -9,12 +9,18 @@ function Login() {
   const [password, setPassword] =
     useState("");
 
+    const [
+  loading,
+  setLoading
+] = useState(false);
   const [role, setRole] = useState("Super Admin");
   const handleLogin = async (e) => {
 
     e.preventDefault();
 
     try {
+
+      setLoading(true);
 
       const response =
         await axios.post(
@@ -90,10 +96,12 @@ console.log(
         alert(
           `This account is ${user.role}. Please select correct role.`
         );
-
+setLoading(false);
         return;
 
       }
+
+      setLoading(false);
 
       // Redirect
 
@@ -128,6 +136,8 @@ else {
 
     catch (error) {
 
+      setLoading(false);
+
       console.log(error);
 
       alert(
@@ -142,7 +152,58 @@ else {
 
   };
 
+  if (loading) {
+
   return (
+
+    <div className="
+    min-h-screen
+    flex
+    flex-col
+    items-center
+    justify-center
+    bg-slate-950
+    ">
+
+      <div className="
+      w-16
+      h-16
+      border-4
+      border-cyan-500
+      border-t-transparent
+      rounded-full
+      animate-spin
+      " />
+
+      <h2 className="
+      text-white
+      text-2xl
+      font-bold
+      mt-6
+      ">
+
+        Smart Lab Monitoring
+
+      </h2>
+
+      <p className="
+      text-slate-400
+      mt-2
+      ">
+
+        Logging In...
+
+      </p>
+
+    </div>
+
+  );
+
+}
+
+  return (
+
+    
 
     <div className="
       min-h-screen
@@ -289,27 +350,54 @@ else {
           "
 
         />
+<button
 
-        <button
+  type="submit"
 
-          type="submit"
+  disabled={loading}
 
-          className="
-            w-full
-            bg-blue-600
-            hover:bg-blue-700
-            p-4
-            rounded-xl
-            text-white
-            font-bold
-            transition
-          "
+  className="
+  w-full
+  bg-cyan-600
+  hover:bg-cyan-700
+  py-3
+  rounded-xl
+  font-semibold
+  disabled:opacity-50
+  "
 
-        >
+>
 
-          Login
+  {loading ? (
 
-        </button>
+    <div className="
+    flex
+    items-center
+    justify-center
+    gap-2
+    ">
+
+      <div className="
+      w-5
+      h-5
+      border-2
+      border-white
+      border-t-transparent
+      rounded-full
+      animate-spin
+      " />
+
+      Logging In...
+
+    </div>
+
+  ) : (
+
+    "Login"
+
+  )}
+
+</button>
 
         <p className="
           text-center

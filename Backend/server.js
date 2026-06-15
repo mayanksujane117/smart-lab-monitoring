@@ -95,6 +95,53 @@ io.on("connection", (socket) => {
   );
 
 });
+
+// ==========================
+// AUTO EXPIRY CHECK
+// ==========================
+
+setInterval(
+
+  async () => {
+
+    try {
+
+      await Organization.updateMany(
+
+        {
+
+          expiryDate: {
+
+            $lt: new Date(),
+
+          },
+
+          status: "Active",
+
+        },
+
+        {
+
+          status: "Expired",
+
+        }
+
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+    }
+
+  },
+
+  1000 * 60 * 60
+
+);
+
 // ==========================
 // REGISTER
 // ==========================
@@ -523,6 +570,35 @@ app.get(
 
         success: false,
 
+      });
+
+    }
+
+  }
+);
+
+app.delete(
+  "/api/super-admin/admin/:id",
+  async (req, res) => {
+
+    try {
+
+      await User.findByIdAndDelete(
+        req.params.id
+      );
+
+      res.json({
+        success: true,
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
       });
 
     }
