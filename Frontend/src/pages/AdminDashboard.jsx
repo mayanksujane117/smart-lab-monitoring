@@ -423,7 +423,11 @@ fetchLabs();
     right-0
     mt-2
     w-96
-    bg-white
+bg-lime-200
+    border
+    border-slate-300
+
+text-black
     rounded-2xl
     shadow-xl
     z-50
@@ -458,27 +462,40 @@ fetchLabs();
         : (
 
           notifications.map(
-            (item) => (
+  (item) => (
 
-              <div
+    <div
+      key={item._id}
+      className="
+      p-4
+      border-b
+      text-black
+      hover:bg-slate-100
+      "
+    >
 
-                key={item._id}
+      <p className="
+      text-sm
+      font-medium
+      text-slate-800
+      ">
+        {item.message}
+      </p>
 
-                className="
-                p-4
-                border-b
-                hover:bg-slate-50
-                "
+      <p className="
+      text-xs
+      text-slate-500
+      mt-1
+      ">
+        {new Date(
+          item.createdAt
+        ).toLocaleString()}
+      </p>
 
-              >
+    </div>
 
-                {item.message}
-
-              </div>
-
-            )
-          )
-
+  )
+)
         )
 
       }

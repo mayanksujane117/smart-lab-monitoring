@@ -152,6 +152,99 @@ app.post(
   }
 );
 
+
+// ==========================
+// LAB STATUS CHECK
+// ==========================
+
+if (
+
+  finalLab !==
+  "Unassigned"
+
+) {
+
+  const labPCs =
+    await PC.find({
+
+      lab: finalLab,
+
+      organizationId,
+
+    });
+
+  const onlinePCs =
+    labPCs.filter(
+
+      (pc) =>
+
+        pc.status ===
+        "Online"
+
+    );
+
+  const offlinePCs =
+    labPCs.filter(
+
+      (pc) =>
+
+        pc.status ===
+        "Offline"
+
+    );
+
+  if (
+
+    onlinePCs.length === 0 &&
+
+    labPCs.length > 0
+
+  ) {
+
+    await Notification.create({
+
+      role:
+        "Admin",
+
+      organizationId,
+
+      message:
+
+        `${finalLab} Lab Offline`,
+
+    });
+
+  }
+
+  if (
+
+    onlinePCs.length === 1 &&
+
+    oldPC?.status ===
+      "Offline" &&
+
+    status ===
+      "Online"
+
+  ) {
+
+    await Notification.create({
+
+      role:
+        "Admin",
+
+      organizationId,
+
+      message:
+
+        `${finalLab} Lab Online`,
+
+    });
+
+  }
+
+}
+
 // ==========================
 // MONGODB
 // ==========================
@@ -1051,6 +1144,16 @@ labExists
   ? lab
   : "Unassigned";
 
+
+  const oldPC =
+await PC.findOne({
+
+  pcName,
+
+  organizationId,
+
+});
+
     // UPDATE PC
 
     const updatedPC =
@@ -1107,6 +1210,33 @@ labExists
       status,
 
     });
+
+    // ==========================
+// PC STATUS NOTIFICATION
+// ==========================
+
+if (
+
+  oldPC &&
+
+  oldPC.status !== status
+
+) {
+
+  await Notification.create({
+
+    role:
+      "Lab Assistant",
+
+    organizationId,
+
+    message:
+
+      `${pcName} ${status}`,
+
+  });
+
+}
 
     // REALTIME UPDATE
 
