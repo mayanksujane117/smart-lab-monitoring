@@ -14,6 +14,7 @@ const { Server } = require("socket.io");
 const PC = require("./models/PC");
 const SystemLog = require("./models/SystemLog");
 const User = require("./models/User");
+const Notification = require("./models/Notification");
 const auth = require("./middleware/auth");
 const organizationRoutes = require("./routes/organizationRoutes");
 const ActivityLog = require( "./models/ActivityLog" );
@@ -50,6 +51,105 @@ app.use(
 app.use(
   "/api/organizations",
   organizationRoutes
+);
+
+// ==========================
+// NOTIFICATIONS
+// ==========================
+
+app.get(
+  "/api/notifications/:role",
+  async (req, res) => {
+
+    try {
+
+      const notifications =
+        await Notification.find({
+
+          role:
+            req.params.role,
+
+        })
+
+        .sort({
+          createdAt: -1,
+        })
+
+        .limit(50);
+
+      res.json(
+        notifications
+      );
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
+app.put(
+  "/api/notifications/read/:id",
+  async (req, res) => {
+
+    try {
+
+      await Notification.findByIdAndUpdate(
+
+        req.params.id,
+
+        {
+          isRead: true,
+        }
+
+      );
+
+      res.json({
+        success: true,
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
+app.post(
+  "/api/test-notification",
+  async (req, res) => {
+
+    await Notification.create({
+
+      role:
+        "Admin",
+
+      message:
+        "Lab A Offline",
+
+    });
+
+    res.json({
+      success: true,
+    });
+
+  }
 );
 
 // ==========================

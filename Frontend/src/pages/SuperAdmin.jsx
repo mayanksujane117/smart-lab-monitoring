@@ -1251,35 +1251,7 @@ font-semibold
 
         </div>
 
-        <div className="mb-6">
-
-  <input
-
-    type="text"
-
-    placeholder="Search Organization..."
-
-    value={searchTerm}
-
-    onChange={(e)=>
-      setSearchTerm(
-        e.target.value
-      )
-    }
-
-    className="
-    w-full
-    p-4
-    rounded-2xl
-    bg-[#0B1220]
-    border
-    border-slate-800
-    outline-none
-    "
-
-  />
-
-</div>
+        
 
 <div className="
 bg-[#0B1220]
@@ -1352,6 +1324,8 @@ mb-8
 
     ))}
 
+    
+
   </div>
 
 </div>
@@ -1383,6 +1357,36 @@ mb-8
             </h2>
 
           </div>
+
+          <div className="mb-6">
+
+  <input
+
+    type="text"
+
+    placeholder="Search Organization..."
+
+    value={searchTerm}
+
+    onChange={(e)=>
+      setSearchTerm(
+        e.target.value
+      )
+    }
+
+    className="
+    w-full
+    p-4
+    rounded-2xl
+    bg-[#0B1220]
+    border
+    border-slate-800
+    outline-none
+    "
+
+  />
+
+</div>
 
           <div className="overflow-x-auto">
 

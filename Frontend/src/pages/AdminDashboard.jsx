@@ -13,6 +13,17 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   const [pcs, setPcs] = useState([]);
+
+  const [
+  notifications,
+  setNotifications
+] = useState([]);
+
+const [
+  showNotifications,
+  setShowNotifications
+] = useState(false);
+
   const [labs, setLabs] = useState([]);
   const username = localStorage.getItem("username");
 const organizationId =
@@ -79,6 +90,32 @@ async () => {
 
 };
 
+const fetchNotifications =
+async () => {
+
+  try {
+
+    const res =
+      await axios.get(
+
+        "https://smart-lab-monitoring.onrender.com/api/notifications/Admin"
+
+      );
+
+    setNotifications(
+      res.data
+    );
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
   useEffect(() => {
 
  const role =
@@ -107,6 +144,26 @@ if (
       fetchPCs();
 
     }, 3000);
+
+  return () =>
+    clearInterval(
+      interval
+    );
+
+}, []);
+
+useEffect(() => {
+
+  fetchNotifications();
+
+  const interval =
+    setInterval(
+
+      fetchNotifications,
+
+      10000
+
+    );
 
   return () =>
     clearInterval(
@@ -305,12 +362,132 @@ fetchLabs();
   ⏻ Shutdown All PCs
 
 </button>
+
+
           <button
             onClick={logout}
             className="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-2xl font-semibold flex gap-3 ml-auto"
           >
             Logout
           </button>
+          <div className="relative">
+
+  <button
+
+    onClick={() =>
+      setShowNotifications(
+        !showNotifications
+      )
+    }
+
+    className="
+    text-2xl
+    relative
+    "
+
+  >
+
+    🔔
+
+    {notifications.filter(
+      n => !n.isRead
+    ).length > 0 && (
+
+      <span className="
+      absolute
+      -top-2
+      -right-2
+      bg-red-500
+      text-white
+      text-xs
+      rounded-full
+      px-2
+      ">
+
+        {
+          notifications.filter(
+            n => !n.isRead
+          ).length
+        }
+
+      </span>
+
+    )}
+
+  </button>
+
+  {showNotifications && (
+
+    <div className="
+    absolute
+    right-0
+    mt-2
+    w-96
+    bg-white
+    rounded-2xl
+    shadow-xl
+    z-50
+    max-h-96
+    overflow-y-auto
+    ">
+
+      <div className="
+      p-4
+      font-bold
+      border-b
+      ">
+
+        Notifications
+
+      </div>
+
+      {
+
+        notifications.length === 0
+
+        ? (
+
+          <div className="p-4">
+
+            No Notifications
+
+          </div>
+
+        )
+
+        : (
+
+          notifications.map(
+            (item) => (
+
+              <div
+
+                key={item._id}
+
+                className="
+                p-4
+                border-b
+                hover:bg-slate-50
+                "
+
+              >
+
+                {item.message}
+
+              </div>
+
+            )
+          )
+
+        )
+
+      }
+
+    </div>
+
+  )}
+
+</div>
         </div>
 
         {/* HERO */}

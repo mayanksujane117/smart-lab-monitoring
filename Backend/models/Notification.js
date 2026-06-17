@@ -4,25 +4,43 @@ require("mongoose");
 const notificationSchema =
 new mongoose.Schema({
 
-  role: String,
-
-  organizationId: {
-    type:
-      mongoose.Schema.Types.ObjectId,
-    ref:
-      "Organization",
+  role: {
+    type: String,
+    required: true,
   },
 
-  message: String,
+  organizationId: {
+
+    type:
+      mongoose.Schema.Types.ObjectId,
+
+    ref:
+      "Organization",
+
+  },
+
+  message: {
+
+    type: String,
+
+    required: true,
+
+  },
 
   isRead: {
+
     type: Boolean,
+
     default: false,
+
   },
 
   createdAt: {
+
     type: Date,
+
     default: Date.now,
+
   },
 
 });

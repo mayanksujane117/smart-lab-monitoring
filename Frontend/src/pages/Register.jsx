@@ -187,7 +187,7 @@ function Register() {
           hover:bg-blue-700
           p-4
           rounded-xl
-          text-white
+          text-whitex`
           font-bold
           "
 
