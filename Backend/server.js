@@ -152,6 +152,33 @@ app.post(
   }
 );
 
+app.delete(
+  "/api/notifications",
+  async (req, res) => {
+
+    try {
+
+      await Notification.deleteMany({});
+
+      res.json({
+        success: true,
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(error);
+
+      res.status(500).json({
+        success: false,
+      });
+
+    }
+
+  }
+);
+
 
 // ==========================
 // LAB STATUS CHECK
