@@ -116,6 +116,56 @@ async () => {
 
 };
 
+const markAsRead =
+async (id) => {
+
+  
+
+  try {
+
+    await axios.put(
+
+      `https://smart-lab-monitoring.onrender.com/api/notifications/read/${id}`
+
+    );
+
+    fetchNotifications();
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
+
+
+const clearAllNotifications =
+async () => {
+
+  try {
+
+    await axios.delete(
+
+      "https://smart-lab-monitoring.onrender.com/api/notifications"
+
+    );
+
+    fetchNotifications();
+
+  }
+
+  catch (error) {
+
+    console.log(error);
+
+  }
+
+};
+
   useEffect(() => {
 
  const role =
@@ -156,6 +206,8 @@ useEffect(() => {
 
   fetchNotifications();
 
+
+  
   const interval =
     setInterval(
 
@@ -206,6 +258,8 @@ useEffect(() => {
 
   }
 );
+
+
 
       alert("Lab Added");
 
@@ -436,14 +490,37 @@ text-black
     ">
 
       <div className="
-      p-4
-      font-bold
-      border-b
-      ">
+p-4
+font-bold
+border-b
+flex
+justify-between
+items-center
+">
 
-        Notifications
+  <span>
+    Notifications
+  </span>
 
-      </div>
+  <button
+
+    onClick={
+      clearAllNotifications
+    }
+
+    className="
+    text-red-500
+    text-sm
+    font-semibold
+    "
+
+  >
+
+    Clear All
+
+  </button>
+
+</div>
 
       {
 
@@ -465,13 +542,37 @@ text-black
   (item) => (
 
     <div
+
       key={item._id}
-      className="
+
+      onClick={() =>
+        markAsRead(
+          item._id
+        )
+      }
+
+      className={`
+
       p-4
+
       border-b
-      text-black
-      hover:bg-slate-100
-      "
+
+      cursor-pointer
+
+      hover:bg-slate-50
+
+      ${
+
+        item.isRead
+
+        ? "bg-white"
+
+        : "bg-cyan-50"
+
+      }
+
+      `}
+
     >
 
       <p className="
@@ -479,7 +580,9 @@ text-black
       font-medium
       text-slate-800
       ">
+
         {item.message}
+
       </p>
 
       <p className="
@@ -487,9 +590,15 @@ text-black
       text-slate-500
       mt-1
       ">
-        {new Date(
-          item.createdAt
-        ).toLocaleString()}
+
+        {
+
+          new Date(
+            item.createdAt
+          ).toLocaleString()
+
+        }
+
       </p>
 
     </div>
