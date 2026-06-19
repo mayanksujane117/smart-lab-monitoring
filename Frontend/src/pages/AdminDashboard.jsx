@@ -206,24 +206,27 @@ useEffect(() => {
 
   fetchNotifications();
 
-
-  
-  const interval =
-    setInterval(
-
-      fetchNotifications,
-
-      10000
-
+  const socket =
+    io(
+      "https://smart-lab-monitoring.onrender.com"
     );
 
-  return () =>
-    clearInterval(
-      interval
-    );
+  socket.on(
+    "notification-update",
+    () => {
+
+      fetchNotifications();
+
+    }
+  );
+
+  return () => {
+
+    socket.disconnect();
+
+  };
 
 }, []);
-
   const fetchLabs = async () => {
 
   try {

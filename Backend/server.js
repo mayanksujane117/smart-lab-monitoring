@@ -145,6 +145,10 @@ app.post(
 
     });
 
+    io.emit(
+  "notification-update"
+);
+
     res.json({
       success: true,
     });
@@ -1177,6 +1181,10 @@ if (
       `${pcName} ${status}`,
 
   });
+
+  io.emit(
+  "notification-update"
+);
 
 }
 
