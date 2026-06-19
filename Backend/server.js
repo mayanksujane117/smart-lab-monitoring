@@ -146,8 +146,8 @@ app.post(
     });
 
     io.emit(
-  "notification-update"
-);
+      "notification-update"
+    );
 
     res.json({
       success: true,
@@ -155,7 +155,6 @@ app.post(
 
   }
 );
-
 app.delete(
   "/api/notifications",
   async (req, res) => {
