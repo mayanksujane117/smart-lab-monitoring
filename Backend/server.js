@@ -181,96 +181,11 @@ app.delete(
 
 
 // ==========================
-// LAB STATUS CHECK
+// NOTE:
 // ==========================
+// The server previously had a "LAB STATUS CHECK" block with top-level `await`,
+// which breaks Node parsing. That logic is handled inside the /api/heartbeat route.
 
-if (
-
-  finalLab !==
-  "Unassigned"
-
-) {
-
-  const labPCs =
-    await PC.find({
-
-      lab: finalLab,
-
-      organizationId,
-
-    });
-
-  const onlinePCs =
-    labPCs.filter(
-
-      (pc) =>
-
-        pc.status ===
-        "Online"
-
-    );
-
-  const offlinePCs =
-    labPCs.filter(
-
-      (pc) =>
-
-        pc.status ===
-        "Offline"
-
-    );
-
-  if (
-
-    onlinePCs.length === 0 &&
-
-    labPCs.length > 0
-
-  ) {
-
-    await Notification.create({
-
-      role:
-        "Admin",
-
-      organizationId,
-
-      message:
-
-        `${finalLab} Lab Offline`,
-
-    });
-
-  }
-
-  if (
-
-    onlinePCs.length === 1 &&
-
-    oldPC?.status ===
-      "Offline" &&
-
-    status ===
-      "Online"
-
-  ) {
-
-    await Notification.create({
-
-      role:
-        "Admin",
-
-      organizationId,
-
-      message:
-
-        `${finalLab} Lab Online`,
-
-    });
-
-  }
-
-}
 
 // ==========================
 // MONGODB
