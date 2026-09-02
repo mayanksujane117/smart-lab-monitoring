@@ -1275,6 +1275,197 @@ app.get(
 
   }
 );
+
+// ==========================
+// ASSIGN PC TO LAB
+// ==========================
+
+app.put(
+  "/api/pcs/:pcName/assign-lab",
+  async (req, res) => {
+
+    try {
+
+      const {
+        lab,
+        organizationId,
+      } = req.body;
+
+
+      // ==========================
+      // VALIDATION
+      // ==========================
+
+      if (
+        !lab ||
+        !organizationId
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Lab and Organization ID are required",
+
+        });
+
+      }
+
+
+      // ==========================
+      // CHECK LAB
+      // ==========================
+
+      const labExists =
+        await Lab.findOne({
+
+          name:
+            lab,
+
+          organizationId,
+
+        });
+
+
+      if (!labExists) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Lab not found",
+
+        });
+
+      }
+
+
+      // ==========================
+      // FIND PC
+      // ==========================
+
+      const pc =
+        await PC.findOne({
+
+          pcName:
+            req.params.pcName,
+
+          organizationId,
+
+        });
+
+
+      if (!pc) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "PC not found",
+
+        });
+
+      }
+
+
+      // ==========================
+      // UPDATE LAB
+      // ==========================
+
+      pc.lab =
+        lab;
+
+      await pc.save();
+
+
+      // ==========================
+      // SEND LAB UPDATE TO AGENT
+      // ==========================
+
+      io.emit(
+        "lab-assigned",
+        {
+
+          pcName:
+            pc.pcName,
+
+          lab:
+            pc.lab,
+
+        }
+      );
+
+
+      // ==========================
+      // REALTIME FRONTEND UPDATE
+      // ==========================
+
+      io.emit(
+        "pc-update",
+        pc
+      );
+
+
+      const allPCs =
+        await PC.find({
+
+          organizationId,
+
+        }).sort({
+
+          lastSeen:
+            -1,
+
+        });
+
+
+      io.emit(
+        "all-pcs-update",
+        allPCs
+      );
+
+
+      // ==========================
+      // RESPONSE
+      // ==========================
+
+      res.json({
+
+        success: true,
+
+        message:
+          "PC assigned to lab successfully",
+
+        pc,
+
+      });
+
+    }
+
+    catch (error) {
+
+      console.log(
+        "ASSIGN LAB ERROR:",
+        error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server Error",
+
+      });
+
+    }
+
+  }
+);
+
 // ==========================
 // GET HISTORY
 // ==========================

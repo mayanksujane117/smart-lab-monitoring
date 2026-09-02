@@ -26,7 +26,9 @@ const [
 ] = useState(false);
 
   const [labs, setLabs] = useState([]);
+  const [selectedLab, setSelectedLab] = useState({});
   const username = localStorage.getItem("username");
+  
 const organizationId =
   localStorage.getItem(
     "organizationId"
@@ -320,6 +322,41 @@ fetchLabs();
     }
 
   };
+
+  const assignPCToLab = async (pcName) => {
+  const lab = selectedLab[pcName];
+
+  if (!lab) {
+    alert("Please select a lab");
+    return;
+  }
+
+  try {
+    await axios.put(
+      `https://smart-lab-monitoring.onrender.com/api/pcs/${encodeURIComponent(pcName)}/assign-lab`,
+      {
+        organizationId,
+        lab,
+      }
+    );
+
+    alert("PC assigned successfully");
+
+    fetchPCs();
+
+    setSelectedLab((prev) => ({
+      ...prev,
+      [pcName]: "",
+    }));
+  } catch (error) {
+    console.log("ASSIGN PC ERROR:", error);
+
+    alert(
+      error.response?.data?.message ||
+        "Failed to assign PC"
+    );
+  }
+};
 
   const logout = () => {
     localStorage.clear();
@@ -638,6 +675,99 @@ items-center
           <StatCard title="Offline" value={offlinePCs} icon="🔴" />
           
         </div>
+
+        {/* UNASSIGNED PCs */}
+
+{pcs.filter((pc) => pc.lab === "Unassigned").length > 0 && (
+  <div className="mb-12">
+
+    <h2 className="text-4xl font-bold mb-8">
+      Unassigned PCs
+    </h2>
+
+    <div className="space-y-4">
+
+      {pcs
+        .filter((pc) => pc.lab === "Unassigned")
+        .map((pc) => (
+
+          <div
+            key={pc._id}
+            className="bg-slate-900 border border-slate-700 rounded-2xl p-5 flex flex-wrap items-center gap-4"
+          >
+
+            {/* PC NAME */}
+
+            <div className="flex-1">
+
+              <h3 className="text-xl font-bold">
+                💻 {pc.pcName}
+              </h3>
+
+              <p className="text-sm text-slate-400 mt-1">
+                Status:
+
+                <span
+                  className={
+                    pc.status === "Online"
+                      ? "text-green-400 ml-2"
+                      : "text-red-400 ml-2"
+                  }
+                >
+                  {pc.status}
+                </span>
+
+              </p>
+
+            </div>
+
+            {/* LAB SELECT */}
+
+            <select
+              value={selectedLab[pc.pcName] || ""}
+              onChange={(e) =>
+                setSelectedLab((prev) => ({
+                  ...prev,
+                  [pc.pcName]: e.target.value,
+                }))
+              }
+              className="bg-slate-800 border border-slate-600 rounded-xl px-4 py-3 min-w-[200px] text-white"
+            >
+
+              <option value="">
+                Select Lab
+              </option>
+
+              {labs.map((lab) => (
+                <option
+                  key={lab._id}
+                  value={lab.name}
+                >
+                  {lab.name}
+                </option>
+              ))}
+
+            </select>
+
+            {/* ASSIGN BUTTON */}
+
+            <button
+              onClick={() =>
+                assignPCToLab(pc.pcName)
+              }
+              className="bg-cyan-600 hover:bg-cyan-700 px-6 py-3 rounded-xl font-semibold"
+            >
+              Assign
+            </button>
+
+          </div>
+
+        ))}
+
+    </div>
+
+  </div>
+)}
 
         {/* LABS */}
         <h2 className="text-4xl font-bold mb-8">Labs Overview</h2>
