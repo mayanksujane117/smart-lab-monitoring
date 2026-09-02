@@ -769,75 +769,410 @@ items-center
   </div>
 )}
 
-        {/* LABS */}
-        <h2 className="text-4xl font-bold mb-8">Labs Overview</h2>
+    {/* LABS */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-         {labs.map((lab) => {
-            const stats = getLabStats(lab.name
-          );
+<div className="mb-7">
 
-            return (
-              <div
-  key={lab._id}
-  onClick={() =>
-    navigate(
-      `/lab/${encodeURIComponent(
-        lab.name
-      )}`
-    )
-  }
->
-                <h2 className="text-3xl font-bold mb-8">{lab.name}</h2>
-                 {lab.name !== "Unassigned" && (
+  <h2 className="text-3xl font-extrabold tracking-tight">
+    Labs Overview
+  </h2>
 
-<button
+  <p className="text-slate-400 mt-1">
+    Real-time summary of all computer labs in your organization
+  </p>
 
-  onClick={(e) => {
+</div>
 
-    e.stopPropagation();
 
-    deleteLab(
-      lab._id
+<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+  {labs.map((lab) => {
+
+    const stats =
+      getLabStats(lab.name);
+
+    const isAI =
+      lab.name.toLowerCase().includes("ai");
+
+    const isIOT =
+      lab.name.toLowerCase().includes("iot");
+
+    const isWeb =
+      lab.name.toLowerCase().includes("web");
+
+    const accent =
+      isAI
+        ? "cyan"
+        : isIOT
+        ? "purple"
+        : isWeb
+        ? "blue"
+        : "emerald";
+
+
+    const cardBorder =
+      isAI
+        ? "border-cyan-400/60 hover:shadow-cyan-500/30"
+        : isIOT
+        ? "border-purple-400/60 hover:shadow-purple-500/30"
+        : isWeb
+        ? "border-blue-400/60 hover:shadow-blue-500/30"
+        : "border-emerald-400/60 hover:shadow-emerald-500/30";
+
+
+    const cardGlow =
+      isAI
+        ? "bg-cyan-500"
+        : isIOT
+        ? "bg-purple-500"
+        : isWeb
+        ? "bg-blue-500"
+        : "bg-emerald-500";
+
+
+    const accentText =
+      isAI
+        ? "text-cyan-400"
+        : isIOT
+        ? "text-purple-400"
+        : isWeb
+        ? "text-blue-400"
+        : "text-emerald-400";
+
+
+    return (
+
+      <div
+        key={lab._id}
+
+        onClick={() =>
+          navigate(
+            `/lab/${encodeURIComponent(
+              lab.name
+            )}`
+          )
+        }
+
+        className={`
+          group
+          relative
+          overflow-hidden
+          rounded-2xl
+          border
+          bg-slate-950/80
+          backdrop-blur-sm
+          p-4
+          cursor-pointer
+
+          transition-all
+          duration-300
+
+          hover:-translate-y-2
+          hover:shadow-2xl
+
+          ${cardBorder}
+        `}
+      >
+
+        {/* DOT PATTERN */}
+
+        <div
+          className="
+            absolute
+            top-0
+            right-0
+            w-32
+            h-32
+            opacity-20
+            pointer-events-none
+
+            bg-[radial-gradient(circle,_white_1px,_transparent_1px)]
+            [background-size:10px_10px]
+          "
+        />
+
+
+        {/* TOP */}
+
+        <div className="relative flex items-center justify-between gap-2">
+
+          <div className="min-w-0">
+
+            <h2 className="text-xl font-extrabold truncate">
+              {lab.name}
+            </h2>
+
+            <div
+              className={`
+                mt-2
+                h-[2px]
+                w-14
+                rounded-full
+                ${cardGlow}
+              `}
+            />
+
+          </div>
+
+
+          {/* DELETE BUTTON */}
+
+          {lab.name !== "Unassigned" && (
+
+            <button
+
+              onClick={(e) => {
+
+                e.stopPropagation();
+
+                deleteLab(
+                  lab._id
+                );
+
+              }}
+
+              className="
+                shrink-0
+                px-3
+                py-2
+                rounded-lg
+
+                border
+                border-red-500/60
+
+                bg-red-500/10
+                text-red-400
+
+                text-xs
+                font-semibold
+
+                hover:bg-red-500
+                hover:text-white
+
+                transition-all
+                duration-300
+              "
+            >
+
+              🗑 Delete
+
+            </button>
+
+          )}
+
+        </div>
+
+
+        {/* STATS */}
+
+        <div className="grid grid-cols-3 gap-2 mt-5">
+
+
+          {/* ONLINE */}
+
+          <div
+            className="
+              rounded-xl
+              border
+              border-green-500/30
+              bg-green-500/5
+              px-2
+              py-3
+              text-center
+
+              transition-all
+              duration-300
+
+              group-hover:bg-green-500/10
+            "
+          >
+
+            <p className="text-xs text-slate-400">
+              Online
+            </p>
+
+            <p className="
+              text-2xl
+              font-extrabold
+              text-green-400
+              mt-1
+            ">
+              {stats.online}
+            </p>
+
+          </div>
+
+
+          {/* OFFLINE */}
+
+          <div
+            className="
+              rounded-xl
+              border
+              border-red-500/30
+              bg-red-500/5
+              px-2
+              py-3
+              text-center
+
+              transition-all
+              duration-300
+
+              group-hover:bg-red-500/10
+            "
+          >
+
+            <p className="text-xs text-slate-400">
+              Offline
+            </p>
+
+            <p className="
+              text-2xl
+              font-extrabold
+              text-red-400
+              mt-1
+            ">
+              {stats.offline}
+            </p>
+
+          </div>
+
+
+          {/* TOTAL */}
+
+          <div
+            className={`
+              rounded-xl
+              px-2
+              py-3
+              text-center
+              border
+
+              ${
+                isAI
+                  ? "border-cyan-500/30 bg-cyan-500/5"
+                  : isIOT
+                  ? "border-purple-500/30 bg-purple-500/5"
+                  : isWeb
+                  ? "border-blue-500/30 bg-blue-500/5"
+                  : "border-emerald-500/30 bg-emerald-500/5"
+              }
+            `}
+          >
+
+            <p className="text-xs text-slate-400">
+              Total PCs
+            </p>
+
+            <p
+              className={`
+                text-2xl
+                font-extrabold
+                mt-1
+                ${accentText}
+              `}
+            >
+              {stats.total}
+            </p>
+
+          </div>
+
+        </div>
+
+
+        {/* FOOTER */}
+
+        <div
+          className="
+            mt-4
+            pt-3
+            border-t
+            border-dashed
+            border-slate-700/70
+          "
+        >
+
+          <div className="flex items-center justify-between gap-2">
+
+            <span className="text-sm text-slate-300">
+              Lab Status
+            </span>
+
+
+            <span
+              className={`
+                px-3
+                py-1.5
+                rounded-full
+                text-xs
+                font-semibold
+                border
+
+                ${
+                  isAI
+                    ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-300"
+                    : isIOT
+                    ? "bg-purple-500/10 border-purple-500/30 text-purple-300"
+                    : isWeb
+                    ? "bg-blue-500/10 border-blue-500/30 text-blue-300"
+                    : "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                }
+              `}
+            >
+
+              {stats.total} PC
+              {stats.total !== 1 ? "s" : ""}
+              {" "}in this lab
+
+            </span>
+
+          </div>
+
+        </div>
+
+
+        {/* HOVER ARROW */}
+
+        <div
+          className={`
+            absolute
+            bottom-3
+            right-3
+
+            w-6
+            h-6
+            rounded-full
+
+            flex
+            items-center
+            justify-center
+
+            text-xs
+            text-white
+
+            opacity-0
+            translate-x-2
+
+            group-hover:opacity-100
+            group-hover:translate-x-0
+
+            transition-all
+            duration-300
+
+            ${cardGlow}
+          `}
+        >
+          →
+        </div>
+
+      </div>
+
     );
 
-  }}
+  })}
 
-  className="
-  bg-red-600
-  hover:bg-red-700
-  px-4
-  py-2
-  rounded-xl
-  text-sm
-  mb-4
-  "
+</div>
 
->
-
-
-  Delete Lab
-
-</button>
-
-)} 
-                <div className="space-y-3">
-                  <div className="bg-green-500/10 text-green-400 p-4 rounded-xl">
-                    Online: {stats.online}
-                  </div>
-
-                  <div className="bg-red-500/10 text-red-400 p-4 rounded-xl">
-                    Offline: {stats.offline}
-                  </div>
-
-                  <div className="bg-slate-800 p-4 rounded-xl">
-                    Total PCs: {stats.total}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
