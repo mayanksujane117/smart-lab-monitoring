@@ -17,7 +17,9 @@ const User = require("./models/User");
 const Notification = require("./models/Notification");
 const auth = require("./middleware/auth");
 const organizationRoutes = require("./routes/organizationRoutes");
-const ActivityLog = require( "./models/ActivityLog" );
+const agentRoutes = require("./routes/agent");
+const ActivityLog = require("./models/ActivityLog");
+
 // ==========================
 // APP
 // ==========================
@@ -51,6 +53,11 @@ app.use(
 app.use(
   "/api/organizations",
   organizationRoutes
+);
+
+app.use(
+  "/api/agent",
+  agentRoutes
 );
 
 // ==========================
@@ -1114,7 +1121,11 @@ await PC.findOne({
 
       pcName,
 
-      lab: finalLab,
+      lab:
+
+oldPC
+ ? oldPC.lab
+ : finalLab,
 
       ipAddress,
 
